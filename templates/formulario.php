@@ -47,16 +47,49 @@
           <label class="label" for="tema_custo">Tema de Custo *</label>
           <select id="tema_custo" name="tema_custo" class="input select">
             <option value="">Selecione uma opção</option>
-            <option>01 - Obras</option><option>02 - Serviços</option><option>21 - Outros</option>
+            <option>01 - Apoio Administrativo - Estagiários</option>
+            <option>02 - Combustível/Manutenção de Veículos</option>
+            <option>03 - Demandas Judiciais</option>
+            <option>04 - Diárias Civil</option>
+            <option>05 - Limpeza e Conservação</option>
+            <option>06 - Locação de Veículos</option>
+            <option>07 - Manutenção Predial</option>
+            <option>08 - Material de Expediente/Copa/limpeza/Gráfico</option>
+            <option>09 - Motoristas</option>
+            <option>10 - Salário de Apenados</option>
+            <option>11 - Rede Digital Corporativa do Estado</option>
+            <option>12 - Serviços de Portaria</option>
+            <option>13 - Serviços de Informática</option>
+            <option>14 - Suprimento Individual</option>
+            <option>15 - Vigilência Ostensiva</option>
+            <option>16 - Auxílio Moradia</option>
+            <option>17 - Cota Global</option>
+            <option>18 - Passagnes Aéreas</option>
+            <option>19 - Energia Elétrica</option>
+            <option>20 - Água e Esgoto</option>
+            <option>21 - Outros</option>
+            <option>22 - Folha de Pessoal</option>
+            <option>23 - FGTS</option>
+            <option>24 - INSS</option>
+            <option>25 - Ressarcimento Pessoal à Disposição</option>
+            <option>26 - Obras</option>
+            <option>27 - Gerenciamento de Obras</option>
+            <option>28 - Projetos de Obras</option>
+            <option>29 - Regularização Fundiária</option>
+            <option>30 - Ouvidoria</option>
           </select>
         </div>
         <div class="md:col-span-4">
           <label class="label" for="setor">Setor Responsável *</label>
           <select id="setor" name="setor" class="input select">
             <option value="">Selecione um setor</option>
-            <option>GOP - Orçamento e Planejamento</option>
-            <option>GEFIN - Financeiro</option>
-            <option>CELOE II</option>
+            <option>DAF</option>
+            <option>DOB</option>
+            <option>DOE</option>
+            <option>SPO</option>
+            <option>DP (PESSOAL)</option>
+            <option>DPH</option>
+            <option>SAJ</option>
           </select>
         </div>
         <div class="md:col-span-4">
@@ -75,7 +108,9 @@
             <div class="md:col-span-4">
               <label class="label" for="status">Status</label>
               <select id="status" name="status" class="input select">
-                <option>Planejado</option><option>Em andamento</option><option>Concluído</option>
+                  <option value="">Selecione...</option>
+                  <option>Continuidade</option>
+                  <option>Novo</option>
               </select>
             </div>
             <div class="md:col-span-2">
@@ -100,23 +135,29 @@
             <div class="md:col-span-2">
               <label class="label" for="reajuste">Reajuste</label>
               <select id="reajuste" name="reajuste" class="input select">
-                <option>Sem reajuste</option><option>Anual</option><option>Outro</option>
+                <option value="">Selecione...</option>
+                <option>Sim</option>
+                <option>Não</option>
               </select>
             </div>
           </div>
         </div>
 
-        <!-- L3b: Fonte | Grupo | Nº SEI -->
         <div class="md:col-span-2">
           <label class="label" for="fonte">Fonte</label>
           <select id="fonte" name="fonte" class="input select">
-            <option>0500 - Tesouro do Estado</option><option>0600 - Convênio</option>
+            <option value="">Selecione...</option>
+            <option>0500 - (Tesouro do Estado)</option>
+            <option>0700 - (Repasse de Convênio)</option>
+            <option>0754 - (Operação de Crédito)</option>
           </select>
         </div>
         <div class="md:col-span-2">
           <label class="label" for="grupo">Grupo</label>
           <select id="grupo" name="grupo" class="input select">
-            <option>3 - Despesa Corrente</option><option>4 - Despesa de Capital</option>
+            <option value="">Selecione...</option>
+            <option>3 - Despesa Corrente</option>
+            <option>4 - Investimentos</option>
           </select>
         </div>
         <div class="md:col-span-2">
@@ -130,12 +171,61 @@
           <input id="valor_total" name="valor_total" class="input moeda" placeholder="R$ 0,00" inputmode="numeric">
         </div>
         <div class="md:col-span-4">
-          <label class="label" for="acao">Ação</label>
-          <input id="acao" name="acao" class="input" placeholder="Ex.: 4354 - Gestão ...">
+          <label class="label" for="setor">Ação</label>
+          <select id="setor" name="setor" class="input select">
+            <option value="">Selecione...</option>
+            <option>2904 - Formulação e Promoção da Política de Regularização Fundiária</option>
+            <option>2928 - Conservação do Patrimonio Público na Companhia Estadual de Habitação e Obras - CHEAB</option>
+            <option>2998 - Encargos Gerais da Companhia Estadual de Habitação e Obras - CEHAB</option>
+            <option>3902 - Fomento e Apoio ao Conselho Estaudal de Habitação de Interesse Social - CEHAB</option>
+            <option>3927 - Manutenção da Ouvidoria da Companhia Estadual de Habitação e Obras - CEHAB</option>
+            <option>4058 - Ampliação da Oferta e Requalificação de Habitação de Interesse Social</option>
+            <option>4300 - Execução de Obras de Infraestrutura e de Urbanização</option>
+            <option>4301 - Pesquisa e Assessoria Técnica para Habitação de Interesse Social</option>
+            <option>4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB</option>
+            <option>4587 - Contribuições Patronais da CEHAB</option>
+            <option>4613 - Encargos com o PIS e o COFINS da Companhia Estadual de Habitação e Obras - CEHAB</option>
+          </select>
+
         </div>
         <div class="md:col-span-4">
           <label class="label" for="subacao">Subação</label>
-          <input id="subacao" name="subacao" class="input" placeholder="Ex.: B667 - Prestação ...">
+          <select id="setor" name="setor" class="input select">
+            <option value="">Selecione...</option>
+            <option>0000 - Outras Medidas</option>
+            <option>0055 - Programa Minha Casa (Operações Coletivas, CAIC, FNHIS e PSH) - Conclusão da construção de moradias</option>
+            <option>0865 - Operacionalização do Programa Minha Casa Minha Vida</option>
+            <option>1163 - Acompanhamento do cadastro de famílias beneficiadas pelo auxílio moradia </option>
+            <option>1399 - Execução de obras de infraestrutura e construção de unidades habitacionais na comunidade de Escorregou Tá Dentro (Afogrados - Recife)</option>
+            <option>1400 - Execução de obras de infraestrutura e construção de unidades habitacionais na comunidade de Mulheres de Tejucupapo (Iputinga - Recife)</option>
+            <option>2067 - Obras e Projetos da Vila Claudete</option>
+            <option>2217 - Execução das obras de implantação de adutora de recalque do Loteamento Snta Clara - Barreiros/PE</option>
+            <option>2409 - Entrada Garantida - Programa Morar Bem</option>
+            <option>2787 - Contribuições Patronais da CEHAB ao FUNAFIN</option>
+            <option>2790 - Manutenção da Tecnologia de Informação e Comunicação da CEHAB</option>
+            <option>2791 - Fornecimento de vale transporte para servidores da CEHAB</option>
+            <option>2792 - Fornecimento de vale alimentação para servidores da CEHAB</option>
+            <option>2793 - Regularização Fundiária e Oferta de Lotes Urbanos com Interesse Social</option>
+            <option>2794 - Auxílio Moradia - CEHAB</option>
+            <option>2885 - Reforma no Lar - PROGRAMA MORAR BEM PE</option>
+            <option>3242 - Execução das obras de pavimentação, drenagem e sinalização da estrada Lygia Gomes da Silva - Ouro Preto</option>
+            <option>3325 - Obras não incidentes - FAR e FDS</option>
+            <option>3352 - Programa Morar Bem - Construção de Unidades Habitacionais</option>
+            <option>A386 - Execução de obras de infraestrutura e construção de unidades habitacionais na Bacia do Fregoso II</option>
+            <option>A389 - Execução de obras de infraestrutura e construção de unidades habitacionais no Canal do Jordão</option>
+            <option>A401 - Execução de obras de infraestrutura e construção de unidades habitacionais em Azeitona(UE11) e Peixinhos (UE12)</option>
+            <option>B156 - Construção da Via Metropolitana Norte (Fragoso - viaduto da PE-15/revestimento do canal/viário até Janga)</option>
+            <option>B661 - Despesas com taxa de água e esgoto da CEHAB</option>
+            <option>B662 - Despesas com combustível da CEHAB</option>
+            <option>B664 - Despesas com tarifa de energia </option>
+            <option>B665 - Prestação de serviços de limpeza e conservação da CEHAB</option>
+            <option>B666 - Despesas com locação de veículos da CEHAB</option>
+            <option>B667 - Prestação de serviços de motorista na CEHAB</option>
+            <option>B668 - Despesas com publicação oficiais de CEHAB em diário oficial</option>
+            <option>B669 - Pagamento de apenados em processo de ressocialização na CEHAB</option>
+            <option>B670 - Prestação de serviços de segurança pessoal e patrimonial na CEHAB </option>
+
+          </select>
         </div>
 
         <!-- L5: Ficha Financeira | Macro Tema | Priorização | É Prorrogável? -->
@@ -146,19 +236,35 @@
         <div class="md:col-span-3">
           <label class="label" for="macro_tema">Macro Tema</label>
           <select id="macro_tema" name="macro_tema" class="input select">
-            <option>Selecione uma opção</option><option>Infraestrutura</option><option>Social</option>
+            <option value="">Selecione...</option>
+            <option>Suporte a Gestão</option>
+            <option>Mão de Obra Terceirizada</option>
+            <option>Outros</option>
+            <option>Auxílio</option>
+            <option>Frota</option>
+            <option>Convênio</option>
+            <option>Pessoal e Encargos Sociais</option>
+            <option>Obras</option>
+            <option>Operações de Crédito</option>
           </select>
         </div>
         <div class="md:col-span-3">
           <label class="label" for="priorizacao">Grau de Priorização</label>
           <select id="priorizacao" name="priorizacao" class="input select">
-            <option>Baixo</option><option>Médio</option><option>Alto</option>
+            <option value="">Selecione...</option>
+            <option>Grau Alto</option>
+            <option>Grau Médio/Alto</option>
+            <option>Grau Médio</option>
+            <option>Grau Médio/Baixo</option>
+            <option>Grau Baixo</option>
           </select>
         </div>
         <div class="md:col-span-2">
           <label class="label" for="prorrogavel">É Prorrogável?</label>
           <select id="prorrogavel" name="prorrogavel" class="input select">
-            <option value="">Selecione</option><option>Sim</option><option>Não</option>
+            <option value="">Selecione...</option>
+            <option>Sim</option>
+            <option>Não</option>
           </select>
         </div>
       </section>
