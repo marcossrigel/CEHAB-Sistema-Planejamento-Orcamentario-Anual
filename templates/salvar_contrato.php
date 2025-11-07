@@ -109,7 +109,34 @@ foreach ($campos as $k => $v) {
 $stmt->bind_param($types, ...$values);
 
 if ($stmt->execute()) {
-  header('Location: sucesso.php');
+  // Em vez de redirecionar, exibe o modal de sucesso
+  ?>
+  <!doctype html>
+  <html lang="pt-br">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Contrato Salvo • POA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-slate-50 flex items-center justify-center min-h-screen">
+    <!-- Modal de sucesso -->
+    <div class="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+      <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-14 w-14 text-green-500 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        <h1 class="text-xl font-semibold text-slate-800 mb-2">Contrato salvo com sucesso!</h1>
+        <p class="text-slate-600 mb-6">As informações do contrato foram registradas corretamente no sistema.</p>
+        <button onclick="window.location.href='home.php'"
+                class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded-xl shadow-sm">
+          OK
+        </button>
+      </div>
+    </div>
+  </body>
+  </html>
+  <?php
   exit;
 } else {
   http_response_code(500);

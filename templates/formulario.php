@@ -12,7 +12,7 @@
 
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <link rel="stylesheet" href="../assests/css/formulario.css">
+  <link rel="stylesheet" href="../assets/css/formulario.css">
 </head>
 <body class="min-h-screen">
   <!-- Topbar -->
@@ -45,7 +45,7 @@
         <!-- L1: Tema de Custo | Setor | Gestor -->
         <div class="md:col-span-4">
           <label class="label" for="tema_custo">Tema de Custo *</label>
-          <select id="tema_custo" name="tema_custo" class="input select">
+          <select id="tema_custo" name="tema_custo" class="input select" required>
             <option value="">Selecione uma opção</option>
             <option>01 - Apoio Administrativo - Estagiários</option>
             <option>02 - Combustível/Manutenção de Veículos</option>
@@ -81,7 +81,7 @@
         </div>
         <div class="md:col-span-4">
           <label class="label" for="setor">Setor Responsável *</label>
-          <select id="setor" name="setor" class="input select">
+          <select id="setor" name="setor" class="input select" required>
             <option value="">Selecione um setor</option>
             <option>DAF</option>
             <option>DOB</option>
@@ -111,7 +111,7 @@
           <div class="grid md:grid-cols-8 gap-x-5 gap-y-1.5">
             <div class="md:col-span-4">
               <label class="label" for="status">Status</label>
-              <select id="status" name="status" class="input select">
+              <select id="status" name="status" class="input select" required>
                   <option value="">Selecione...</option>
                   <option>Continuidade</option>
                   <option>Novo</option>
@@ -259,7 +259,7 @@
         </div>
         <div class="md:col-span-3">
           <label class="label" for="priorizacao">Grau de Priorização</label>
-          <select id="priorizacao" name="priorizacao" class="input select">
+          <select id="priorizacao" name="priorizacao" class="input select" required>
             <option value="">Selecione...</option>
             <option>Grau Alto</option>
             <option>Grau Médio/Alto</option>
