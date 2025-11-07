@@ -97,6 +97,10 @@
           <input id="gestor" name="gestor" class="input" placeholder="Nome do gestor">
         </div>
 
+        <div class="md:col-span-12">
+          <hr class="my-4 border-slate-200">
+        </div>
+
         <!-- L2 + L3 (Objeto à esquerda; à direita 2 linhas: Status/Nº/ Credor e Vigência/DEA/Reajuste) -->
         <div class="md:col-span-4">
           <label class="label" for="objeto">Objeto / Atividade</label>
@@ -172,7 +176,7 @@
         </div>
         <div class="md:col-span-4">
           <label class="label" for="setor">Ação</label>
-          <select id="setor" name="setor" class="input select">
+          <select id="acao" name="acao" class="input select">
             <option value="">Selecione...</option>
             <option>2904 - Formulação e Promoção da Política de Regularização Fundiária</option>
             <option>2928 - Conservação do Patrimonio Público na Companhia Estadual de Habitação e Obras - CHEAB</option>
@@ -190,7 +194,7 @@
         </div>
         <div class="md:col-span-4">
           <label class="label" for="subacao">Subação</label>
-          <select id="setor" name="setor" class="input select">
+          <select id="subacao" name="subacao" class="input select">
             <option value="">Selecione...</option>
             <option>0000 - Outras Medidas</option>
             <option>0055 - Programa Minha Casa (Operações Coletivas, CAIC, FNHIS e PSH) - Conclusão da construção de moradias</option>
@@ -233,6 +237,11 @@
           <label class="label" for="ficha_financeira">Ficha Financeira</label>
           <input id="ficha_financeira" name="ficha_financeira" class="input" placeholder="Ex.: G3 - Motoristas">
         </div>
+
+        <div class="md:col-span-12">
+          <hr class="my-4 border-slate-200">
+        </div>
+
         <div class="md:col-span-3">
           <label class="label" for="macro_tema">Macro Tema</label>
           <select id="macro_tema" name="macro_tema" class="input select">
