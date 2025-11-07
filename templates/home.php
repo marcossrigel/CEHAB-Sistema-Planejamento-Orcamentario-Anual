@@ -1,3 +1,17 @@
+<?php
+if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+
+// Se quiser forçar login por token:
+if (!isset($_SESSION['usuario'])) {
+  http_response_code(401);
+  echo "Sessão não iniciada. Acesse via index.php?token=...";
+  exit;
+}
+
+$nomeUsuario = $_SESSION['usuario']['nome'] ?? 'usuário';
+?>
+
+
 <!doctype html>
 <html lang="pt-br">
 <head>
@@ -39,10 +53,15 @@
           Novo Contrato
         </a>
 
-        <button type="button" class="inline-flex items-center gap-2 rounded-xl border border-red-300 px-4 py-2 text-red-600 bg-white text-sm font-medium hover:bg-red-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4"><path d="M16 13v-2H7V8l-5 4 5 4v-3h9Zm3-10H8a2 2 0 0 0-2 2v3h2V5h11v14H8v-3H6v3a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Z"/></svg>
+        <a href="sair.php"
+          class="inline-flex items-center gap-2 rounded-xl border border-red-300 px-4 py-2 text-red-600 bg-white text-sm font-medium hover:bg-red-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+          title="Encerrar sessão">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
+            <path d="M16 13v-2H7V8l-5 4 5 4v-3h9Zm3-10H8a2 2 0 0 0-2 2v3h2V5h11v14H8v-3H6v3a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Z"/>
+          </svg>
           Sair
-        </button>
+        </a>
+
       </div>
     </div>
   </header>
@@ -53,12 +72,8 @@
       <div class="flex flex-wrap items-center gap-3 text-sm text-slate-600">
         <div class="flex items-center gap-2">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-slate-500"><path d="M12 12c2.21 0 4-1.79 4-4S14.21 4 12 4 8 5.79 8 8s1.79 4 4 4Zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4Z"/></svg>
-          <span class="font-medium">Olá, seja bem-vindo:</span>
+          <span class="font-medium">Olá, seja bem-vindo:</span><strong><?= htmlspecialchars($nomeUsuario) ?></strong>
         </div>
-        <span class="inline-flex items-center gap-2 rounded-full bg-blue-50 text-blue-700 border border-blue-100 px-3 py-1 text-xs font-medium">
-          <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-          <span id="nomeUsuario" class="font-medium">nome_usuario</span>
-        </span>
       </div>
 
       <h2 class="mt-4 text-lg sm:text-xl font-semibold text-slate-900">Contratos em Andamento</h2>
