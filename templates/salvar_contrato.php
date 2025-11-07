@@ -1,7 +1,7 @@
 <?php
 // templates/salvar_contrato.php
 if (session_status() !== PHP_SESSION_ACTIVE) session_start();
-require_once __DIR__ . '/../config.php'; // aponta para C:\laragon\www\...\config.php
+require_once __DIR__ . '/../config.php'; // agora temos $poa e $cehab
 
 /* ---------- Helpers ---------- */
 
@@ -55,6 +55,7 @@ $mesCampos = [
 ];
 
 $campos = [
+  'usuario_cehab'    => $_SESSION['usuario']['nome'] ?? null,
   'tema_custo'       => $_POST['tema_custo'] ?? null,
   'setor'            => $_POST['setor'] ?? null,
   'gestor'           => $_POST['gestor'] ?? null,
@@ -89,10 +90,10 @@ $cols = implode(',', array_map(fn($c) => "`$c`", array_keys($campos)));
 $placeholders = rtrim(str_repeat('?,', count($campos)), ',');
 $sql = "INSERT INTO `novo_contrato` ($cols) VALUES ($placeholders)";
 
-$stmt = $conexao->prepare($sql);
+$stmt = $poa->prepare($sql);
 if (!$stmt) {
   http_response_code(500);
-  echo "Erro ao preparar statement: " . $conexao->error;
+  echo "Erro ao preparar statement: " . $poa->error;
   exit;
 }
 
