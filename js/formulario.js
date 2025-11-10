@@ -21,23 +21,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const valorTotal = document.getElementById('valor_total');
   if (valorTotal) valorTotal.addEventListener('input', formatar);
 
-  // ====== destacar mudanças ======
+  // ====== destaque visual (flash azul) ======
   function flashSelect(el) {
     if (!el) return;
-    // adiciona classes Tailwind pra evidenciar
     el.classList.add('ring-2','ring-sky-400','bg-sky-50','transition-colors','duration-700');
-    // também dá um leve destaque no label (se existir)
     const label = document.querySelector(`label[for="${el.id}"]`);
     if (label) label.classList.add('text-sky-700');
-
-    // remove depois de ~1.2s
     setTimeout(() => {
       el.classList.remove('ring-2','ring-sky-400','bg-sky-50');
       if (label) label.classList.remove('text-sky-700');
     }, 1200);
   }
 
-  // ====== helper para selecionar opções por texto (robusto a acentos/caixa) ======
+  // ====== helpers ======
   const norm = s => (s || '')
     .toString()
     .normalize('NFD')
@@ -49,76 +45,97 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!selectEl) return false;
     const prev = selectEl.value;
     const opts = Array.from(selectEl.options);
-
     for (const q of queries) {
       const qn = norm(q);
-      let found = opts.find(o => norm(o.text) === qn)              // 1) exato
-              || opts.find(o => norm(o.text).startsWith(qn))       // 2) começa com
-              || opts.find(o => norm(o.text).includes(qn));        // 3) contém
-
+      let found = opts.find(o => norm(o.text) === qn)
+             ||    opts.find(o => norm(o.text).startsWith(qn))
+             ||    opts.find(o => norm(o.text).includes(qn));
       if (found) {
-        // como suas <option> não têm value, usamos o texto
-        selectEl.value = found.text;
+        selectEl.value = found.text; // seu HTML usa o texto como value
         const changed = (selectEl.value !== prev);
         selectEl.dispatchEvent(new Event('change', { bubbles: true }));
-        if (changed) flashSelect(selectEl); // destaca só se de fato mudou
+        if (changed) flashSelect(selectEl);
         return true;
       }
     }
     return false;
   }
 
-  // ====== mapa de preenchimento automático por Tema ======
-  const temaAutofill = {
-    '29': { // 29 - Regularização Fundiária
-      fonte: [
+  // ====== elementos ======
+  const temaSelect   = document.getElementById('tema_custo');
+  const grupoSelect  = document.getElementById('grupo');
+  const fonteEl      = document.getElementById('fonte');
+  const acaoEl       = document.getElementById('acao');
+  const subEl        = document.getElementById('subacao');
+  const fichaEl      = document.getElementById('ficha_financeira');
+
+  // ====== regra 1: Tema 29 -> só Fonte 0500 ======
+  function aplicarRegraTema() {
+    if (!temaSelect) return;
+    const raw = temaSelect.value || '';
+    const temaCodigo = (raw.split(' - ')[0] || '').trim(); // "29"
+    if (temaCodigo === '29') {
+      // apenas Fonte
+      pickOption(fonteEl, [
         '0500 - Tesouro do Estado',
         '0500 - (Tesouro do Estado)',
         '0500'
-      ],
-      grupo: [
-        '3 - Despesa Corrente',
-        '3 - Despesas Correntes',
-        '3 -'
-      ],
-      acao: [
+      ]);
+    }
+  }
+
+  // ====== regra 2: Grupo -> Ação, Subação, Ficha ======
+  function aplicarRegraGrupo() {
+    if (!grupoSelect) return;
+    const g = grupoSelect.value || '';
+    const gNorm = norm(g);
+
+    // Grupo 3 - Despesa(s) Corrente(s)
+    if (gNorm.startsWith('3 - despesa') || gNorm.startsWith('3 - despesas')) {
+      pickOption(acaoEl, [
         '2904 - Formulação e Promoção da Política de Regularização Fundiária',
         '2904 - Formulacao e Promocao da Politica de Regularizacao Fundiaria',
         '2904'
-      ],
-      subacao: [
-        '0000 - Outras Medidas',
+      ]);
+      pickOption(subEl, [
         '0000 - OUTRAS MEDIDAS',
+        '0000 - Outras Medidas',
         '0000'
-      ],
-      ficha_financeira: [
+      ]);
+      pickOption(fichaEl, [
         'G3 - Outros',
         'Outros'
-      ]
+      ]);
+      return;
     }
-  };
 
-  // ====== listener do Tema de Custo ======
-  const temaSelect = document.getElementById('tema_custo');
-  if (temaSelect) {
-    temaSelect.addEventListener('change', () => {
-      const raw = temaSelect.value || '';
-      const temaCodigo = (raw.split(' - ')[0] || '').trim(); // ex: "29"
-      const cfg = temaAutofill[temaCodigo];
-      if (!cfg) return;
-
-      pickOption(document.getElementById('fonte'),            cfg.fonte);
-      pickOption(document.getElementById('grupo'),            cfg.grupo);
-      pickOption(document.getElementById('acao'),             cfg.acao);
-      pickOption(document.getElementById('subacao'),          cfg.subacao);
-      pickOption(document.getElementById('ficha_financeira'), cfg.ficha_financeira);
-    });
-
-    // aplica se já vier selecionado do servidor
-    if (temaSelect.value) {
-      temaSelect.dispatchEvent(new Event('change'));
+    // Grupo 4 - Investimentos
+    if (gNorm.startsWith('4 - investimento')) {
+      pickOption(acaoEl, [
+        '2904 - Formulação e Promoção da Política de Regularização Fundiária',
+        '2904 - Formulacao e Promocao da Politica de Regularizacao Fundiaria',
+        '2904'
+      ]);
+      pickOption(subEl, [
+        '2793 - Regularização Fundiária e Oferta de Lotes Urbanos com Interesse Social',
+        '2793 - Regularizacao Fundiaria e Oferta de Lotes Urbanos com Interesse Social',
+        '2793'
+      ]);
+      pickOption(fichaEl, [
+        'G4 - Outros',
+        'Outros'
+      ]);
+      return;
     }
   }
+
+  // listeners
+  if (temaSelect)  temaSelect.addEventListener('change', aplicarRegraTema);
+  if (grupoSelect) grupoSelect.addEventListener('change', aplicarRegraGrupo);
+
+  // aplica regras se vier preenchido do servidor
+  aplicarRegraTema();
+  aplicarRegraGrupo();
 
   // calcula total inicial (caso tenha valores preenchidos)
   somar();

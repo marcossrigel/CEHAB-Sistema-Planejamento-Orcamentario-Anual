@@ -35,7 +35,7 @@
   </header>
 
   <!-- Form container -->
-  <main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+  <main class="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-8">
     <form class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-8" action="salvar_contrato.php" method="post" id="formContrato">
       <div class="flex items-center justify-between">
         <h1 class="text-xl font-semibold text-slate-900">Formulário POA 2025</h1>
@@ -115,7 +115,7 @@
         <!-- L2 + L3 (Objeto à esquerda; à direita 2 linhas: Status/Nº/ Credor e Vigência/DEA/Reajuste) -->
         <div class="md:col-span-4">
           <label class="label" for="objeto">Objeto / Atividade</label>
-          <textarea id="objeto" name="objeto" class="input min-h-[140px]" placeholder="Descreva o objeto ou atividade"></textarea>
+          <textarea id="objeto" name="objeto" class="input min-h-[189px]" placeholder="Descreva o objeto ou atividade"></textarea>
         </div>
 
         <div class="md:col-span-8">
@@ -128,11 +128,11 @@
                   <option>Novo</option>
               </select>
             </div>
-            <div class="md:col-span-2">
+            <div class="md:col-span-4">
               <label class="label" for="numero_contrato">Nº Contrato</label>
               <input id="numero_contrato" name="numero_contrato" class="input" placeholder="0000/0000">
             </div>
-            <div class="md:col-span-2">
+            <div class="md:col-span-4">
               <label class="label" for="credor">Credor</label>
               <input id="credor" name="credor" class="input" placeholder="Nome do credor">
             </div>
@@ -141,13 +141,13 @@
               <label class="label" for="vigencia">Vigência</label>
               <input id="vigencia" name="vigencia" class="input" placeholder="mm/aaaa - mm/aaaa">
             </div>
-            <div class="md:col-span-2">
+            <div class="md:col-span-4">
               <label class="label" for="dea">DEA</label>
               <select id="dea" name="dea" class="input select">
                 <option value="">Selecione...</option><option>Sim</option><option>Não</option>
               </select>
             </div>
-            <div class="md:col-span-2">
+            <div class="md:col-span-4">
               <label class="label" for="reajuste">Reajuste</label>
               <select id="reajuste" name="reajuste" class="input select">
                 <option value="">Selecione...</option>
@@ -158,7 +158,11 @@
           </div>
         </div>
 
-        <div class="md:col-span-2">
+        <div class="md:col-span-12">
+          <hr class="my-4 border-slate-200">
+        </div>
+
+        <div class="md:col-span-4">
           <label class="label" for="fonte">Fonte</label>
           <select id="fonte" name="fonte" class="input select">
             <option value="">Selecione...</option>
@@ -167,7 +171,7 @@
             <option>0754 - (Operação de Crédito)</option>
           </select>
         </div>
-        <div class="md:col-span-2">
+        <div class="md:col-span-4">
           <label class="label" for="grupo">Grupo</label>
           <select id="grupo" name="grupo" class="input select">
             <option value="">Selecione...</option>
@@ -175,7 +179,7 @@
             <option>4 - Investimentos</option>
           </select>
         </div>
-        <div class="md:col-span-2">
+        <div class="md:col-span-4">
           <label class="label" for="sei">Número do SEI</label>
           <input id="sei" name="sei" class="input" placeholder="0000000-00.0000.0.00.0000">
         </div>
