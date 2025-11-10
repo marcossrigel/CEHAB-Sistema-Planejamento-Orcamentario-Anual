@@ -14,6 +14,7 @@
 
   <link rel="stylesheet" href="../assets/css/formulario.css">
 </head>
+
 <body class="min-h-screen">
   <!-- Topbar -->
   <header class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-slate-200">
@@ -77,6 +78,16 @@
             <option>28 - Projetos de Obras</option>
             <option>29 - Regularização Fundiária</option>
             <option>30 - Ouvidoria</option>
+            <option>31 - Ouvidoria</option>
+            <option>32 - Ouvidoria</option>
+            <option>33 - Ouvidoria</option>
+            <option>34 - Ouvidoria</option>
+            <option>35 - Ouvidoria</option>
+            <option>36 - Contribuições Patronais da CEHAB</option>
+            <option>37 - Encargos com o PIS e o COFINS</option>
+            <option>38 - Apoio Administrativo</option>
+            <option>39 - Apoio Especializado</option>
+
           </select>
         </div>
         <div class="md:col-span-4">
@@ -235,7 +246,43 @@
         <!-- L5: Ficha Financeira | Macro Tema | Priorização | É Prorrogável? -->
         <div class="md:col-span-4">
           <label class="label" for="ficha_financeira">Ficha Financeira</label>
-          <input id="ficha_financeira" name="ficha_financeira" class="input" placeholder="Ex.: G3 - Motoristas">
+          <select id="ficha_financeira" name="ficha_financeira" class="input">
+            <option value="">Selecione...</option>
+            <option>G3 - Água e Esgoto</option>
+            <option>G3 - Apoio Administrativo - Estagiários</option>
+            <option>G3 - Auxílio Funeral</option>
+            <option>G3 - Auxílio Moradia</option>
+            <option>G3 - Auxílio Moradia - Operação Prontidão</option>
+            <option>G3 - Combustíveis/Manutenção/ Veículos</option>
+            <option>G3 - Cota Global</option>
+            <option>G3 - Demandas Judiciais</option>
+            <option>G4 - Devolução - Recursos do Concedente</option>
+            <option>G3 - Diárias Civil</option>
+            <option>G3 - Energia Elétrica</option>
+            <option>G1 - FGTS</option>
+            <option>G3 - Fornecimento de Passagens</option>
+            <option>G1 - INSS</option>
+            <option>G3 - Limpeza e Conservação</option>
+            <option>G3 - Locação de Veículos</option>
+            <option>G3 - Manutenção Predial</option>
+            <option>G3 - Material de Expediente/Copa/Limpeza/Gráfico</option>
+            <option>G3 - Motoristas</option>
+            <option>G4 - Obra</option>
+            <option>G4 - Operações de Crédito</option>
+            <option>G4 - Outros</option>
+            <option>G3 - Outros</option>
+            <option>G1 - Pessoal e Encargos Sociais</option>
+            <option>G3 - Publicação Oficiais</option>
+            <option>G4 - Recursos do Concedente</option>
+            <option>G3 - Rede Digital Corporativa do Estado</option>
+            <option>G1 - Ressarcimento Pessoal à Disposição</option>
+            <option>G3 - Salário de Apenados</option>
+            <option>G3 - Serviços de Informática</option>
+            <option>G3 - Serviços de Portaria</option>
+            <option>G3 - Suprimento Individual</option>
+            <option>G3 - Vigilância Ostensiva</option>
+            <option>G4 - Supervisão de Obra</option>
+          </select>
         </div>
 
         <div class="md:col-span-12">
@@ -302,17 +349,6 @@
     </form>
   </main>
 
-  <script>
-    const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-    const parseMoeda = v => (v||'').replace(/[^0-9]/g,'')/100 || 0;
-    function formatar(e){ e.target.value = fmt.format(parseMoeda(e.target.value)); somar(); }
-    function somar(){
-      let total = 0;
-      document.querySelectorAll('.moeda').forEach(i => total += parseMoeda(i.value));
-      document.getElementById('totalMeses').textContent = fmt.format(total);
-    }
-    document.querySelectorAll('.moeda').forEach(i => i.addEventListener('input', formatar));
-    document.getElementById('valor_total')?.addEventListener('input', formatar);
-  </script>
+  <script src="../js/formulario.js"></script>
 </body>
 </html>
