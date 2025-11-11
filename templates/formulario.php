@@ -175,6 +175,7 @@
           <label class="label" for="grupo">Grupo</label>
           <select id="grupo" name="grupo" class="input select">
             <option value="">Selecione...</option>
+            <option>1 - Pessoal</option>
             <option>3 - Despesa Corrente</option>
             <option>4 - Investimentos</option>
           </select>
