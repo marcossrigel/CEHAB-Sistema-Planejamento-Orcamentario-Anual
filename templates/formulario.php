@@ -78,11 +78,11 @@
             <option>28 - Projetos de Obras</option>
             <option>29 - Regularização Fundiária</option>
             <option>30 - Ouvidoria</option>
-            <option>31 - Ouvidoria</option>
-            <option>32 - Ouvidoria</option>
-            <option>33 - Ouvidoria</option>
-            <option>34 - Ouvidoria</option>
-            <option>35 - Ouvidoria</option>
+            <option>31 - FINHIS</option>
+            <option>32 - Minha Casa Minha Vida</option>
+            <option>33 - Vale Transporte</option>
+            <option>34 - Vale Alimentação</option>
+            <option>35 - Publicações Oficiais</option>
             <option>36 - Contribuições Patronais da CEHAB</option>
             <option>37 - Encargos com o PIS e o COFINS</option>
             <option>38 - Apoio Administrativo</option>
@@ -257,7 +257,7 @@
             <option>G3 - Auxílio Funeral</option>
             <option>G3 - Auxílio Moradia</option>
             <option>G3 - Auxílio Moradia - Operação Prontidão</option>
-            <option>G3 - Combustíveis/Manutenção/ Veículos</option>
+            <option>G3 - Combustíveis/Manutenção Veículos</option>
             <option>G3 - Cota Global</option>
             <option>G3 - Demandas Judiciais</option>
             <option>G4 - Devolução - Recursos do Concedente</option>
@@ -287,10 +287,6 @@
             <option>G3 - Vigilância Ostensiva</option>
             <option>G4 - Supervisão de Obra</option>
           </select>
-        </div>
-
-        <div class="md:col-span-12">
-          <hr class="my-4 border-slate-200">
         </div>
 
         <div class="md:col-span-3">
@@ -329,6 +325,10 @@
         </div>
       </section>
 
+      <div class="md:col-span-12">
+          <hr class="my-4 border-slate-200">
+      </div>
+
       <!-- Tabela de Meses -->
       <section class="space-y-3">
         <h2 class="text-base font-semibold text-slate-900">Tabela de Meses</h2>
@@ -353,6 +353,8 @@
     </form>
   </main>
 
-  <script src="../js/formulario.js"></script>
+  <script src="../js/condicionais_poa.js" defer></script>
+  <script src="../js/formulario.js" defer></script>
+
 </body>
 </html>
