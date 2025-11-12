@@ -1,4 +1,4 @@
-// js/formulario.js (versão ajustada)
+// js/formulario.js (com Tema 21 - Outros + filtros dinâmicos)
 document.addEventListener('DOMContentLoaded', () => {
   // ====== utilidades de moeda ======
   const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -61,6 +61,55 @@ document.addEventListener('DOMContentLoaded', () => {
     return false;
   }
 
+  // ==== snapshot/restauração de opções (para filtro dinâmico) ====
+  const originals = new Map(); // selectEl -> [{text, value, disabled}]
+  function snapshotOptions(selectEl) {
+    if (!selectEl || originals.has(selectEl)) return;
+    originals.set(selectEl, Array.from(selectEl.options).map(o => ({
+      text: o.text, value: o.value, disabled: o.disabled
+    })));
+  }
+  function restoreOptions(selectEl) {
+    if (!selectEl) return;
+    const snap = originals.get(selectEl);
+    if (!snap) return;
+    const current = selectEl.value;
+    selectEl.innerHTML = '';
+    for (const o of snap) {
+      const opt = new Option(o.text, o.value);
+      opt.disabled = !!o.disabled;
+      selectEl.add(opt);
+    }
+    // tenta manter seleção anterior, se existir
+    const had = Array.from(selectEl.options).find(o => o.text === current);
+    selectEl.value = had ? current : '';
+  }
+  function setAllowedOptions(selectEl, allowedTexts) {
+    // mantém "Selecione..." se houver
+    if (!selectEl) return;
+    snapshotOptions(selectEl);
+    const snap = originals.get(selectEl) || [];
+    const allowedNorm = new Set(allowedTexts.map(t => norm(t)));
+
+    const kept = [];
+    // mantém primeira opção (Selecione...) se existir
+    if (snap.length && norm(snap[0].text).includes('selecione')) {
+      kept.push(snap[0]);
+    }
+    for (let i = 0; i < snap.length; i++) {
+      const o = snap[i];
+      if (norm(o.text).includes('selecione')) continue;
+      if (allowedNorm.has(norm(o.text))) kept.push(o);
+    }
+    selectEl.innerHTML = '';
+    for (const o of kept) {
+      const opt = new Option(o.text, o.value);
+      opt.disabled = !!o.disabled;
+      selectEl.add(opt);
+    }
+    selectEl.value = '';
+  }
+
   const temaSelect   = document.getElementById('tema_custo');
   const grupoSelect  = document.getElementById('grupo');
   const fonteEl      = document.getElementById('fonte');
@@ -68,18 +117,61 @@ document.addEventListener('DOMContentLoaded', () => {
   const subEl        = document.getElementById('subacao');
   const fichaEl      = document.getElementById('ficha_financeira');
 
-  let autoLock = false;
+  // snapshot inicial dos selects que serão filtrados
+  [fonteEl, grupoSelect, acaoEl].forEach(snapshotOptions);
 
+  let autoLock = false;
   const getTemaCodigo = () =>
     ((temaSelect?.value || '').split(' - ')[0] || '').trim();
 
   // ===================== REGRAS POR TEMA =====================
   function aplicarRegraTema() {
     if (!temaSelect) return;
-
     const temaCodigo = getTemaCodigo();
 
-    // mapa herdado (seu bloco anterior) — mantive como estava
+    // --- Caso especial: 21 - Outros (filtro de opções e preenchimentos automáticos) ---
+    if (temaCodigo === '21') {
+      autoLock = true;
+
+      // Filtrar fontes para: 0500 / 0754
+      setAllowedOptions(fonteEl, [
+        '0500 - (Tesouro do Estado)',
+        '0754 - (Operação de Crédito)',
+        '0500 - Tesouro do Estado',      // compatibilidade com textos alternativos
+        '0754 - Operações de Crédito'
+      ]);
+
+      // Filtrar grupo para: 3 - Despesas Correntes / 4 - Investimentos
+      setAllowedOptions(grupoSelect, [
+        '3 - Despesa Corrente',
+        '3 - Despesas Correntes',
+        '4 - Investimentos'
+      ]);
+
+      // Filtrar ação para: 4300, 4301, 4354
+      setAllowedOptions(acaoEl, [
+        '4300 - Execução de Obras de Infraestrutura e de Urbanização',
+        '4301 - Pesquisa e Assessoria Técnica para Habitação de Interesse Social',
+        '4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB'
+      ]);
+
+      // Limpa subação/ficha para aguardar escolha da ação
+      if (subEl) subEl.value = '';
+      if (fichaEl) fichaEl.value = '';
+
+      autoLock = false;
+      flashSelect(fonteEl);
+      flashSelect(grupoSelect);
+      flashSelect(acaoEl);
+      return;
+    } else {
+      // Se não for 21, restaura selects caso tenham sido filtrados
+      restoreOptions(fonteEl);
+      restoreOptions(grupoSelect);
+      restoreOptions(acaoEl);
+    }
+
+    // ======== Regras já existentes (mantidas) ========
     const THEME_RULES = {
       '01': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS', ficha:'G3 - Apoio Administrativo - Estagiários' },
       '02': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'B662 - Despesas com combustível da CEHAB', ficha:['G3 - Combustíveis/Manutenção Veículos','G3 - Combustíveis/Manutenção/ Veículos'] },
@@ -114,40 +206,38 @@ document.addEventListener('DOMContentLoaded', () => {
       '38': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'B669 - Pagamento de apenados em processo de ressocialização na CEHAB', ficha:'G3 - Apoio Administrativo' }
     };
 
-    // Tema 29 (regras por GRUPO já existentes)
+    // Tema 29 (regras por GRUPO)
     if (temaCodigo === '29') {
       pickOption(fonteEl, ['0500 - Tesouro do Estado','0500 - (Tesouro do Estado)','0500']);
       [acaoEl, subEl, fichaEl].forEach(sel => { if (sel) sel.value = ''; });
       return;
     }
 
-    // --------- Novas regras solicitadas ---------
-
-    // 31 - FINHIS: ação/sub fixas; grupo=4; ficha depende da FONTE (deixa em aberto p/ 0500)
+    // 31 - FINHIS
     if (temaCodigo === '31') {
       autoLock = true;
       pickOption(grupoSelect, ['4 - Investimentos','4 -']);
       pickOption(acaoEl,  '4058 - Ampliação da Oferta e Requalificação de Habitação de Interesse Social');
       pickOption(subEl,   '0055 - Programa Minha Casa (Operações Coletivas, CAIC, FNHIS e PSH)');
-      if (fichaEl) fichaEl.value = ''; // deixar usuário escolher no caso 0500
-      autoLock = false;
-      aplicarRegraFonte(); // se já houver fonte escolhida, aplica ficha conforme a fonte
-      return;
-    }
-
-    // 32 - Minha Casa Minha Vida: ação/sub fixas; grupo=4; ficha depende da FONTE (em 0500 deixar aberto)
-    if (temaCodigo === '32') {
-      autoLock = true;
-      pickOption(grupoSelect, ['4 - Investimentos','4 -']);
-      pickOption(acaoEl,  '4058 - Ampliação da Oferta e Requalificação de Habitação de Interesse Social');
-      pickOption(subEl,   '0865 - Operacionalização do Programa Minha Casa Minha Vida');
-      if (fichaEl) fichaEl.value = ''; // pode ser G4 - Minha Casa Minha Vida ou G4 - Contrapartida de Convênio (se existir na lista)
+      if (fichaEl) fichaEl.value = '';
       autoLock = false;
       aplicarRegraFonte();
       return;
     }
 
-    // 39 - Apoio Especializado: ação/sub fixas; grupo e ficha dependem da FONTE
+    // 32 - MCMV
+    if (temaCodigo === '32') {
+      autoLock = true;
+      pickOption(grupoSelect, ['4 - Investimentos','4 -']);
+      pickOption(acaoEl,  '4058 - Ampliação da Oferta e Requalificação de Habitação de Interesse Social');
+      pickOption(subEl,   '0865 - Operacionalização do Programa Minha Casa Minha Vida');
+      if (fichaEl) fichaEl.value = '';
+      autoLock = false;
+      aplicarRegraFonte();
+      return;
+    }
+
+    // 39 - Apoio Especializado
     if (temaCodigo === '39') {
       autoLock = true;
       pickOption(acaoEl, '4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB');
@@ -158,36 +248,35 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // 28 - Projetos de Obras: força fonte 0500; grupo=4; ação=4300; sub livre; ficha sempre "G4 - Projeto de Obra"
+    // 28 - Projetos de Obras
     if (temaCodigo === '28') {
       autoLock = true;
       pickOption(fonteEl, ['0500 - Tesouro do Estado','0500 - (Tesouro do Estado)','0500']);
       pickOption(grupoSelect, ['4 - Investimentos','4 -']);
       pickOption(acaoEl, '4300 - Execução de Obras de Infraestrutura e de Urbanização');
-      if (subEl) subEl.value = ''; // usuário escolhe entre várias
+      if (subEl) subEl.value = '';
       pickOption(fichaEl, 'G4 - Projeto de Obra');
       autoLock = false;
       return;
     }
 
-    // 27 - Gerenciamento de Obras: força fonte 0500; grupo=4; ação=4300; sub livre; ficha sempre "G4 - Supervisão de Obra"
+    // 27 - Gerenciamento de Obras
     if (temaCodigo === '27') {
       autoLock = true;
       pickOption(fonteEl, ['0500 - Tesouro do Estado','0500 - (Tesouro do Estado)','0500']);
       pickOption(grupoSelect, ['4 - Investimentos','4 -']);
       pickOption(acaoEl, '4300 - Execução de Obras de Infraestrutura e de Urbanização');
-      if (subEl) subEl.value = ''; // várias alternativas
+      if (subEl) subEl.value = '';
       pickOption(fichaEl, 'G4 - Supervisão de Obra');
       autoLock = false;
       return;
     }
 
-    // Se existir regra direta herdada do mapa, aplica
+    // Regras default do mapa
     const cfg = THEME_RULES[temaCodigo] || THEME_RULES[String(Number(temaCodigo))];
     if (cfg) {
       autoLock = true;
 
-      // Fonte default 0500 quando apropriado às regras antigas
       pickOption(fonteEl, ['0500 - Tesouro do Estado','0500 - (Tesouro do Estado)','0500']);
 
       const toQueries = (v) => {
@@ -222,61 +311,73 @@ document.addEventListener('DOMContentLoaded', () => {
     const is0700 = f.includes('0700');
     const is0754 = f.includes('0754');
 
-    // 31 - FINHIS
     if (temaCodigo === '31') {
       autoLock = true;
       pickOption(grupoSelect, ['4 - Investimentos','4 -']);
       pickOption(acaoEl, '4058 - Ampliação da Oferta e Requalificação de Habitação de Interesse Social');
       pickOption(subEl,  '0055 - Programa Minha Casa (Operações Coletivas, CAIC, FNHIS e PSH)');
-
       if (is0700) pickOption(fichaEl, 'G4 - Recursos do Concedente');
       else if (is0754) pickOption(fichaEl, 'G4 - Operações de Crédito');
-      else if (is0500) { if (fichaEl) fichaEl.value = ''; } // deixar o usuário escolher
-
+      else if (is0500) { if (fichaEl) fichaEl.value = ''; }
       autoLock = false;
       return;
     }
 
-    // 32 - Minha Casa Minha Vida
     if (temaCodigo === '32') {
       autoLock = true;
       pickOption(grupoSelect, ['4 - Investimentos','4 -']);
       pickOption(acaoEl, '4058 - Ampliação da Oferta e Requalificação de Habitação de Interesse Social');
       pickOption(subEl,  '0865 - Operacionalização do Programa Minha Casa Minha Vida');
-
       if (is0700) pickOption(fichaEl, 'G4 - Recursos do Concedente');
-      else if (is0500) { if (fichaEl) fichaEl.value = ''; } // pode ser G4 - MCMV ou G4 - Contrapartida (se existirem)
-
+      else if (is0500) { if (fichaEl) fichaEl.value = ''; }
       autoLock = false;
       return;
     }
 
-    // 39 - Apoio Especializado
     if (temaCodigo === '39') {
       autoLock = true;
       pickOption(acaoEl, '4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB');
       pickOption(subEl,  '0000 - OUTRAS MEDIDAS');
-
       if (is0500) {
         pickOption(grupoSelect, ['3 - Despesa Corrente','3 - Despesas Correntes','3 -']);
-        // vai preencher se a opção existir; caso não, fica em aberto
         pickOption(fichaEl, 'G3 - Apoio Especializado');
       } else if (is0754) {
         pickOption(grupoSelect, ['4 - Investimentos','4 -']);
         pickOption(fichaEl, 'G4 - Operações de Crédito');
       }
-
       autoLock = false;
       return;
     }
-
-    // 28 e 27 são independentes da fonte (forçamos 0500 no tema), então não tratamos aqui.
+    // 27 e 28 são independentes aqui
   }
 
-  // ===================== listeners =====================
-  if (temaSelect)  temaSelect.addEventListener('change', aplicarRegraTema);
-  if (grupoSelect) grupoSelect.addEventListener('change', aplicarRegraGrupo);
-  if (fonteEl)     fonteEl.addEventListener('change', aplicarRegraFonte);
+  // ===================== Regra especial por AÇÃO (Tema 21) =====================
+  function aplicarRegraAcaoTema21() {
+    if (getTemaCodigo() !== '21') return;
+    const acao = (acaoEl?.value || '');
+    const a = norm(acao);
+
+    // 4301 → sub 1163, ficha G4 - Outros
+    if (a.startsWith('4301 - pesquisa')) {
+      pickOption(subEl, '1163 - Acompanhamento do cadastro de famílias beneficiadas pelo auxílio moradia');
+      pickOption(fichaEl, 'G4 - Outros');
+      return;
+    }
+
+    // 4354 → sub 0000, ficha G4 - Outros
+    if (a.startsWith('4354 - gestao') || a.includes('gestão das atividades')) {
+      pickOption(subEl, '0000 - OUTRAS MEDIDAS');
+      pickOption(fichaEl, 'G4 - Outros');
+      return;
+    }
+
+    // 4300 → sub livre; ficha G4 - Outros
+    if (a.startsWith('4300 - execucao') || a.includes('infraestrutura e de urbanizacao')) {
+      // não forçamos subEl (pode ser vários); apenas ficha
+      pickOption(fichaEl, 'G4 - Outros');
+      return;
+    }
+  }
 
   // ===================== regra 2 existente: Grupo -> ... (somente Tema 29) =====================
   function aplicarRegraGrupo() {
@@ -301,10 +402,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // ===================== listeners =====================
+  if (temaSelect)  temaSelect.addEventListener('change', () => {
+    aplicarRegraTema();
+    // Ao mudar o tema, se for 21, também escutamos mudança de Ação
+    if (getTemaCodigo() === '21') aplicarRegraAcaoTema21();
+  });
+
+  if (grupoSelect) grupoSelect.addEventListener('change', aplicarRegraGrupo);
+  if (fonteEl)     fonteEl.addEventListener('change', aplicarRegraFonte);
+  if (acaoEl)      acaoEl.addEventListener('change', aplicarRegraAcaoTema21);
+
   // ===================== inicialização =====================
   aplicarRegraTema();
   aplicarRegraGrupo();
   aplicarRegraFonte(); // caso dados venham preenchidos do servidor
+  aplicarRegraAcaoTema21();
 
   somar(); // total inicial
 });
