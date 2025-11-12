@@ -287,6 +287,9 @@
             <option>G3 - Suprimento Individual</option>
             <option>G3 - Vigilância Ostensiva</option>
             <option>G4 - Supervisão de Obra</option>
+            <option>G3 - Apoio Especializado</option>
+            <option>G4 - Minha Casa Minha Vida</option>
+            <option>G4 - Contrapartida de Convênio</option>
           </select>
         </div>
 
