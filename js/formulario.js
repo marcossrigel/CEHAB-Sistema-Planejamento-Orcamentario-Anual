@@ -133,42 +133,53 @@ document.addEventListener('DOMContentLoaded', () => {
     if (temaCodigo === '21') {
       autoLock = true;
 
-      // Filtrar fontes para: 0500 / 0754
+      // Filtrar FONTES: 0500 ou 0754
       setAllowedOptions(fonteEl, [
         '0500 - (Tesouro do Estado)',
+        '0500 - Tesouro do Estado',
         '0754 - (Operação de Crédito)',
-        '0500 - Tesouro do Estado',      // compatibilidade com textos alternativos
         '0754 - Operações de Crédito'
       ]);
 
-      // Filtrar grupo para: 3 - Despesas Correntes / 4 - Investimentos
+      // Filtrar GRUPOS: 3 ou 4
       setAllowedOptions(grupoSelect, [
         '3 - Despesa Corrente',
         '3 - Despesas Correntes',
         '4 - Investimentos'
       ]);
 
-      // Filtrar ação para: 4300, 4301, 4354
+      // (se quiser manter essas ações disponíveis)
       setAllowedOptions(acaoEl, [
         '4300 - Execução de Obras de Infraestrutura e de Urbanização',
         '4301 - Pesquisa e Assessoria Técnica para Habitação de Interesse Social',
         '4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB'
       ]);
 
-      // Limpa subação/ficha para aguardar escolha da ação
+      // 🔹 Filtrar FICHA FINANCEIRA: só G3 - Outros e G4 - Outros
+      setAllowedOptions(fichaEl, [
+        'G3 - Outros',
+        'G4 - Outros'
+      ]);
+
+      // limpar valores selecionados para o usuário escolher
       if (subEl) subEl.value = '';
       if (fichaEl) fichaEl.value = '';
 
       autoLock = false;
+
       flashSelect(fonteEl);
       flashSelect(grupoSelect);
       flashSelect(acaoEl);
+      // se quiser dar destaque visual também:
+      // flashSelect(fichaEl);
+
       return;
-    } else {
-      // Se não for 21, restaura selects caso tenham sido filtrados
-      restoreOptions(fonteEl);
-      restoreOptions(grupoSelect);
-      restoreOptions(acaoEl);
+    }
+    else {
+        // Se não for 21, restaura selects caso tenham sido filtrados
+        restoreOptions(fonteEl);
+        restoreOptions(grupoSelect);
+        restoreOptions(acaoEl);
     }
 
     // ======== Regras já existentes (mantidas) ========
@@ -197,6 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
       '23': { grupo:['1 - Pessoal','1 - Pessoal e Encargos Sociais'], acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS', ficha:'G1 - FGTS' },
       '24': { grupo:['1 - Pessoal','1 - Pessoal e Encargos Sociais'], acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS', ficha:'G1 - INSS' },
       '25': { grupo:['1 - Pessoal','1 - Pessoal e Encargos Sociais'], acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS', ficha:'G1 - Ressarcimento Pessoal à Disposição' },
+      '26': { grupo:['4 - Investimentos'], acao:'4300 - Execução de Obras de Infraestrutura e de Urbanização', },
       '30': { acao:'3927 - Manutenção da Ouvidoria da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS', ficha:'G3 - Outros' },
       '33': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'2791 - Fornecimento de vale transporte para servidores da CEHAB', ficha:['G3 - Vale / Auxílio Transporte','G3 - Vale/Auxílio Transporte','G3 - Vale Transporte'] },
       '34': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'2792 - Fornecimento de vale alimentação para servidores da CEHAB', ficha:['G3 - Vale / Auxílio Alimentação','G3 - Vale/Auxílio Alimentação','G3 - Vale Alimentação'] },
@@ -204,6 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
       '36': { grupo:['1 - Pessoal','1 - Pessoal e Encargos Sociais'], acao:'4587 - Contribuições Patronais da CEHAB', sub:'2787 - Contribuições Patronais da CEHAB ao FUNAFIN', ficha:'G1 - Pessoal e Encargos Sociais' },
       '37': { acao:'4613 - Encargos com o PIS e o COFINS da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS', ficha:'G3 - Outros' },
       '38': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'B669 - Pagamento de apenados em processo de ressocialização na CEHAB', ficha:'G3 - Apoio Administrativo' }
+
     };
 
     // Tema 29 (regras por GRUPO)
@@ -277,7 +290,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (cfg) {
       autoLock = true;
 
-      pickOption(fonteEl, ['0500 - Tesouro do Estado','0500 - (Tesouro do Estado)','0500']);
+      // Só força a fonte 0500 se NÃO for Tema 26 - Obras
+      if (temaCodigo !== '26') {
+        pickOption(fonteEl, ['0500 - Tesouro do Estado','0500 - (Tesouro do Estado)','0500']);
+      }
 
       const toQueries = (v) => {
         if (!v) return [];
@@ -357,24 +373,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const acao = (acaoEl?.value || '');
     const a = norm(acao);
 
-    // 4301 → sub 1163, ficha G4 - Outros
+    // 4301 → só sugere SUBAÇÃO, ficha fica a critério do usuário
     if (a.startsWith('4301 - pesquisa')) {
       pickOption(subEl, '1163 - Acompanhamento do cadastro de famílias beneficiadas pelo auxílio moradia');
-      pickOption(fichaEl, 'G4 - Outros');
       return;
     }
 
-    // 4354 → sub 0000, ficha G4 - Outros
+    // 4354 → só sugere SUBAÇÃO
     if (a.startsWith('4354 - gestao') || a.includes('gestão das atividades')) {
       pickOption(subEl, '0000 - OUTRAS MEDIDAS');
-      pickOption(fichaEl, 'G4 - Outros');
       return;
     }
 
-    // 4300 → sub livre; ficha G4 - Outros
+    // 4300 → não força subnem ficha
     if (a.startsWith('4300 - execucao') || a.includes('infraestrutura e de urbanizacao')) {
-      // não forçamos subEl (pode ser vários); apenas ficha
-      pickOption(fichaEl, 'G4 - Outros');
+      // deixa subação e ficha livres
       return;
     }
   }
