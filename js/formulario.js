@@ -21,7 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const valorTotal = document.getElementById('valor_total');
   if (valorTotal) valorTotal.addEventListener('input', formatar);
 
-  // ====== destaque visual (flash azul) ======
   function flashSelect(el) {
     if (!el) return;
     el.classList.add('ring-2','ring-sky-400','bg-sky-50','transition-colors','duration-700');

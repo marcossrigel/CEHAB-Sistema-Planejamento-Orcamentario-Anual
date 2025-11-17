@@ -1,11 +1,8 @@
 <?php
-// templates/salvar_contrato.php
+
 if (session_status() !== PHP_SESSION_ACTIVE) session_start();
-require_once __DIR__ . '/../config.php'; // agora temos $poa e $cehab
+require_once __DIR__ . '/../config.php'; 
 
-/* ---------- Helpers ---------- */
-
-// "R$ 1.234,56" -> 1234.56
 function brl_to_decimal(?string $str): float {
   $str = (string)$str;
   $str = preg_replace('/[^0-9,.-]/', '', $str);
@@ -17,7 +14,6 @@ function brl_to_decimal(?string $str): float {
 // "mm/aaaa - mm/aaaa" -> ("YYYY-mm-01", "YYYY-mm-últimoDia")
 function parse_vigencia(?string $vigencia): array {
   $vigencia = trim((string)$vigencia);
-  // aceita "mm/aaaa-mm/aaaa" ou "mm/aaaa - mm/aaaa"
   $parts = preg_split('/\s*-\s*/', $vigencia);
   $ini = $fim = null;
 
