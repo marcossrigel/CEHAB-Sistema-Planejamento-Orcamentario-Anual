@@ -11,7 +11,6 @@ function brl_to_decimal(?string $str): float {
   return is_numeric($str) ? (float)$str : 0.0;
 }
 
-// "mm/aaaa - mm/aaaa" -> ("YYYY-mm-01", "YYYY-mm-últimoDia")
 function parse_vigencia(?string $vigencia): array {
   $vigencia = trim((string)$vigencia);
   $parts = preg_split('/\s*-\s*/', $vigencia);
@@ -29,21 +28,17 @@ function parse_vigencia(?string $vigencia): array {
   return [$ini, $fim];
 }
 
-// "Sim"->1, "Não/Nao"->0, vazio->NULL
 function bool_ptbr($v) {
   if ($v === 'Sim') return 1;
   if ($v === 'Não' || $v === 'Nao') return 0;
   return null;
 }
 
-/* ---------- Coleta POST ---------- */
-
 [$vig_ini, $vig_fim] = parse_vigencia($_POST['vigencia'] ?? '');
 
 $mes = $_POST['mes'] ?? [];
 $toDecimal = fn($i) => brl_to_decimal($mes[$i] ?? '0');
 
-// nomes dos campos de mês NA TABELA (por extenso)
 $mesCampos = [
   'janeiro','fevereiro','marco','abril',
   'maio','junho','julho','agosto',
@@ -75,12 +70,9 @@ $campos = [
   'prorrogavel'      => bool_ptbr($_POST['prorrogavel'] ?? null),
 ];
 
-// adiciona os meses (form usa mes[0..11])
 foreach ($mesCampos as $i => $nomeMes) {
   $campos[$nomeMes] = $toDecimal($i);
 }
-
-/* ---------- INSERT ---------- */
 
 $cols = implode(',', array_map(fn($c) => "`$c`", array_keys($campos)));
 $placeholders = rtrim(str_repeat('?,', count($campos)), ',');

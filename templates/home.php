@@ -67,6 +67,76 @@ $stmt->execute();
 $res        = $stmt->get_result();
 $contratos  = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
 
+// --------- SOMATÓRIO DOS MESES (para o cronograma) ---------
+$sumSql = "
+  SELECT
+    COALESCE(SUM(janeiro),   0) AS jan,
+    COALESCE(SUM(fevereiro), 0) AS fev,
+    COALESCE(SUM(marco),     0) AS mar,
+    COALESCE(SUM(abril),     0) AS abr,
+    COALESCE(SUM(maio),      0) AS mai,
+    COALESCE(SUM(junho),     0) AS jun,
+    COALESCE(SUM(julho),     0) AS jul,
+    COALESCE(SUM(agosto),    0) AS ago,
+    COALESCE(SUM(setembro),  0) AS set_,
+    COALESCE(SUM(outubro),   0) AS out_,
+    COALESCE(SUM(novembro),  0) AS nov,
+    COALESCE(SUM(dezembro),  0) AS dez
+  FROM novo_contrato
+  WHERE $where
+";
+
+$stmtSum = $poa->prepare($sumSql);
+if ($params) {
+  $stmtSum->bind_param($types, ...$params);
+}
+$stmtSum->execute();
+$resSum   = $stmtSum->get_result();
+$totMeses = $resSum ? $resSum->fetch_assoc() : [
+  'jan'=>0,'fev'=>0,'mar'=>0,'abr'=>0,'mai'=>0,'jun'=>0,
+  'jul'=>0,'ago'=>0,'set_'=>0,'out_'=>0,'nov'=>0,'dez'=>0
+];
+
+$totalGeralMeses = array_sum($totMeses);
+
+// --------- GRAVA NAS TABELAS valores_acumulados E soma_total ---------
+$mapMeses = [
+  'JAN' => 'jan',
+  'FEV' => 'fev',
+  'MAR' => 'mar',
+  'ABR' => 'abr',
+  'MAI' => 'mai',
+  'JUN' => 'jun',
+  'JUL' => 'jul',
+  'AGO' => 'ago',
+  'SET' => 'set_',
+  'OUT' => 'out_',
+  'NOV' => 'nov',
+  'DEZ' => 'dez',
+];
+
+// upsert por mês
+$stmtUp = $poa->prepare("
+  INSERT INTO valores_acumulados (mes, soma_meses)
+  VALUES (?, ?)
+  ON DUPLICATE KEY UPDATE soma_meses = VALUES(soma_meses)
+");
+foreach ($mapMeses as $rotulo => $campo) {
+  $valor = (float)($totMeses[$campo] ?? 0);
+  $stmtUp->bind_param('sd', $rotulo, $valor);
+  $stmtUp->execute();
+}
+
+// grava total geral
+$stmtTot = $poa->prepare("
+  INSERT INTO soma_total (id, soma_total)
+  VALUES (1, ?)
+  ON DUPLICATE KEY UPDATE soma_total = VALUES(soma_total)
+");
+$stmtTot->bind_param('d', $totalGeralMeses);
+$stmtTot->execute();
+
+
 // helpers
 function bool_ptbr_view($v) {
   if (is_null($v)) return '';
@@ -78,6 +148,13 @@ function brl_or_empty($v) {
   if ((float)$v == 0.0) return ''; // se for 0, não mostra nada
   return 'R$ ' . number_format((float)$v, 2, ',', '.');
 }
+
+function brl_val($v) {
+  return 'R$ ' . number_format((float)$v, 2, ',', '.');
+}
+
+
+
 ?>
 <!doctype html>
 <html lang="pt-br">
@@ -258,6 +335,48 @@ function brl_or_empty($v) {
         <div class="max-h-[220px] overflow-y-auto overflow-x-auto">
           <table class="min-w-full text-sm">
             <thead class="bg-slate-50">
+              <!-- LINHA DE TOTAIS POR COLUNA -->
+              <tr class="text-xs font-semibold text-slate-700 bg-sky-50">
+                <th class="px-3 py-2 border-b border-slate-200 text-left">TOTAL</th>
+                <th class="px-3 py-2 border-b border-slate-200 whitespace-nowrap">
+                  <?= brl_val($totMeses['jan'] ?? 0) ?>
+                </th>
+                <th class="px-3 py-2 border-b border-slate-200 whitespace-nowrap">
+                  <?= brl_val($totMeses['fev'] ?? 0) ?>
+                </th>
+                <th class="px-3 py-2 border-b border-slate-200 whitespace-nowrap">
+                  <?= brl_val($totMeses['mar'] ?? 0) ?>
+                </th>
+                <th class="px-3 py-2 border-b border-slate-200 whitespace-nowrap">
+                  <?= brl_val($totMeses['abr'] ?? 0) ?>
+                </th>
+                <th class="px-3 py-2 border-b border-slate-200 whitespace-nowrap">
+                  <?= brl_val($totMeses['mai'] ?? 0) ?>
+                </th>
+                <th class="px-3 py-2 border-b border-slate-200 whitespace-nowrap">
+                  <?= brl_val($totMeses['jun'] ?? 0) ?>
+                </th>
+                <th class="px-3 py-2 border-b border-slate-200 whitespace-nowrap">
+                  <?= brl_val($totMeses['jul'] ?? 0) ?>
+                </th>
+                <th class="px-3 py-2 border-b border-slate-200 whitespace-nowrap">
+                  <?= brl_val($totMeses['ago'] ?? 0) ?>
+                </th>
+                <th class="px-3 py-2 border-b border-slate-200 whitespace-nowrap">
+                  <?= brl_val($totMeses['set_'] ?? 0) ?>
+                </th>
+                <th class="px-3 py-2 border-b border-slate-200 whitespace-nowrap">
+                  <?= brl_val($totMeses['out_'] ?? 0) ?>
+                </th>
+                <th class="px-3 py-2 border-b border-slate-200 whitespace-nowrap">
+                  <?= brl_val($totMeses['nov'] ?? 0) ?>
+                </th>
+                <th class="px-3 py-2 border-b border-slate-200 whitespace-nowrap">
+                  <?= brl_val($totMeses['dez'] ?? 0) ?>
+                </th>
+              </tr>
+
+              <!-- LINHA DOS NOMES DOS MESES -->
               <tr class="text-left text-xs font-semibold text-slate-600 uppercase">
                 <th class="px-3 py-2 border-b border-slate-200">Código POA</th>
                 <th class="px-3 py-2 border-b border-slate-200">JAN</th>
@@ -274,6 +393,7 @@ function brl_or_empty($v) {
                 <th class="px-3 py-2 border-b border-slate-200">DEZ</th>
               </tr>
             </thead>
+
             <tbody class="divide-y divide-slate-100">
               <?php foreach ($contratos as $c): ?>
                 <tr class="hover:bg-slate-50">
@@ -297,6 +417,14 @@ function brl_or_empty($v) {
             </tbody>
           </table>
         </div>
+      </div>
+
+      <!-- TOTAL GERAL EMBAIXO DA TABELA -->
+      <div class="mt-4 inline-flex items-center gap-2 rounded-xl bg-sky-50 border border-sky-100 px-4 py-2 text-sm text-slate-700">
+        <span class="font-medium">Total R$:</span>
+        <span class="font-semibold text-slate-900">
+          <?= brl_val($totalGeralMeses) ?>
+        </span>
       </div>
     <?php endif; ?>
 
