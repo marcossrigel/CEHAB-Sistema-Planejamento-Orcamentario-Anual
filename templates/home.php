@@ -11,18 +11,18 @@ if (!isset($_SESSION['usuario'])) {
 $nomeUsuario = $_SESSION['usuario']['nome'] ?? 'usuário';
 
 // Conexão com o banco (mesmo config do salvar_contrato.php)
-require_once __DIR__ . '/../config.php'; // aqui precisa existir $poa (mysqli)
+require_once __DIR__ . '/../config.php'; // precisa existir $poa (mysqli)
 
-// --------- BUSCA / LISTAGEM ---------
+// --------- BUSCA / LISTAGEM CONTRATOS ---------
 $busca = trim($_GET['q'] ?? '');
 
-$where = '1';
+$where  = '1';
 $params = [];
 $types  = '';
 
 if ($busca !== '') {
   $where .= " AND (numero_contrato LIKE ? OR credor LIKE ? OR objeto LIKE ?)";
-  $like = "%{$busca}%";
+  $like   = "%{$busca}%";
   $params = [$like, $like, $like];
   $types  = 'sss';
 }
@@ -38,7 +38,19 @@ $sql = "
     reajuste,
     ficha_financeira,
     priorizacao,
-    created_at
+    created_at,
+    janeiro,
+    fevereiro,
+    marco,
+    abril,
+    maio,
+    junho,
+    julho,
+    agosto,
+    setembro,
+    outubro,
+    novembro,
+    dezembro
   FROM novo_contrato
   WHERE $where
   ORDER BY created_at DESC
@@ -46,20 +58,25 @@ $sql = "
 
 $stmt = $poa->prepare($sql);
 if ($stmt === false) {
-  die("Erro ao preparar consulta: " . $poa->error);
+  die('Erro ao preparar consulta: ' . $poa->error);
 }
-
 if ($params) {
   $stmt->bind_param($types, ...$params);
 }
-
 $stmt->execute();
-$res = $stmt->get_result();
-$contratos = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+$res        = $stmt->get_result();
+$contratos  = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
 
+// helpers
 function bool_ptbr_view($v) {
   if (is_null($v)) return '';
   return (int)$v === 1 ? 'sim' : 'não';
+}
+
+function brl_or_empty($v) {
+  if ($v === null) return '';
+  if ((float)$v == 0.0) return ''; // se for 0, não mostra nada
+  return 'R$ ' . number_format((float)$v, 2, ',', '.');
 }
 ?>
 <!doctype html>
@@ -119,7 +136,9 @@ function bool_ptbr_view($v) {
   </header>
 
   <!-- Content -->
-  <main class="mx-auto w-full max-w-[1700px] px-4 sm:px-6 lg:px-8 py-8">
+  <main class="mx-auto w-full max-w-[1700px] px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <!-- CAIXA 1: CONTRATOS EM ANDAMENTO -->
     <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6">
       <div class="flex flex-wrap items-center gap-3 text-sm text-slate-600">
         <div class="flex items-center gap-2">
@@ -160,78 +179,136 @@ function bool_ptbr_view($v) {
           </p>
         </div>
       <?php else: ?>
-        <div class="mt-6 overflow-x-auto">
-          <table class="min-w-full text-sm border border-slate-200 rounded-xl overflow-hidden">
+        <div class="mt-6 border border-slate-200 rounded-xl overflow-hidden">
+          <div class="max-h-[220px] overflow-y-auto overflow-x-auto">
+            <table class="min-w-full text-sm">
+              <thead class="bg-slate-50">
+                <tr class="text-left text-xs font-semibold text-slate-600 uppercase">
+                  <th class="px-3 py-2 border-b border-slate-200">Código POA</th>
+                  <th class="px-3 py-2 border-b border-slate-200">Objeto/Atividade</th>
+                  <th class="px-3 py-2 border-b border-slate-200">Status</th>
+                  <th class="px-3 py-2 border-b border-slate-200">Nº do Contrato</th>
+                  <th class="px-3 py-2 border-b border-slate-200">Credor</th>
+                  <th class="px-3 py-2 border-b border-slate-200">DEA</th>
+                  <th class="px-3 py-2 border-b border-slate-200">Reajuste</th>
+                  <th class="px-3 py-2 border-b border-slate-200">Ficha Financeira</th>
+                  <th class="px-3 py-2 border-b border-slate-200">Grau de Priorização</th>
+                  <th class="px-3 py-2 border-b border-slate-200">Data de Criação</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                <?php foreach ($contratos as $c): ?>
+                  <?php
+                    $dataCriacao = '';
+                    if (!empty($c['created_at'])) {
+                      $dt = new DateTime($c['created_at']);
+                      $dataCriacao = $dt->format('d/m/Y');
+                    }
+                  ?>
+                  <tr class="hover:bg-slate-50">
+                    <td class="px-3 py-2 text-sky-700 font-semibold whitespace-nowrap">
+                      <?= htmlspecialchars($c['id']) ?>
+                    </td>
+                    <td class="px-3 py-2 max-w-xs truncate" title="<?= htmlspecialchars($c['objeto']) ?>">
+                      <?= htmlspecialchars($c['objeto']) ?>
+                    </td>
+                    <td class="px-3 py-2 whitespace-nowrap">
+                      <?= htmlspecialchars($c['status_contrato']) ?>
+                    </td>
+                    <td class="px-3 py-2 whitespace-nowrap">
+                      <?= htmlspecialchars($c['numero_contrato']) ?>
+                    </td>
+                    <td class="px-3 py-2 whitespace-nowrap">
+                      <?= htmlspecialchars($c['credor']) ?>
+                    </td>
+                    <td class="px-3 py-2 text-center">
+                      <?= bool_ptbr_view($c['dea']) ?>
+                    </td>
+                    <td class="px-3 py-2 text-center">
+                      <?= bool_ptbr_view($c['reajuste']) ?>
+                    </td>
+                    <td class="px-3 py-2 whitespace-nowrap">
+                      <?= htmlspecialchars($c['ficha_financeira']) ?>
+                    </td>
+                    <td class="px-3 py-2 whitespace-nowrap">
+                      <?= htmlspecialchars($c['priorizacao']) ?>
+                    </td>
+                    <td class="px-3 py-2 whitespace-nowrap">
+                      <?= $dataCriacao ?>
+                    </td>
+                  </tr>
+                <?php endforeach; ?>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      <?php endif; ?>
+    </section>
+
+    <!-- CAIXA 2: CRONOGRAMA DAS DESPESAS -->
+    <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6">
+      <h2 class="text-lg sm:text-xl font-semibold text-slate-900 mb-4">
+        Cronograma das Despesas
+      </h2>
+
+      <?php if (empty($contratos)): ?>
+        <p class="text-sm text-slate-600">Nenhum contrato cadastrado para montar o cronograma.</p>
+      <?php else: ?>
+      <div class="border border-slate-200 rounded-xl overflow-hidden">
+        <div class="max-h-[220px] overflow-y-auto overflow-x-auto">
+          <table class="min-w-full text-sm">
             <thead class="bg-slate-50">
               <tr class="text-left text-xs font-semibold text-slate-600 uppercase">
                 <th class="px-3 py-2 border-b border-slate-200">Código POA</th>
-                <th class="px-3 py-2 border-b border-slate-200">Objeto/Atividade</th>
-                <th class="px-3 py-2 border-b border-slate-200">Status</th>
-                <th class="px-3 py-2 border-b border-slate-200">Nº do Contrato</th>
-                <th class="px-3 py-2 border-b border-slate-200">Credor</th>
-                <th class="px-3 py-2 border-b border-slate-200">DEA</th>
-                <th class="px-3 py-2 border-b border-slate-200">Reajuste</th>
-                <th class="px-3 py-2 border-b border-slate-200">Ficha Financeira</th>
-                <th class="px-3 py-2 border-b border-slate-200">Grau de Priorização</th>
-                <th class="px-3 py-2 border-b border-slate-200">Data de Criação</th>
+                <th class="px-3 py-2 border-b border-slate-200">JAN</th>
+                <th class="px-3 py-2 border-b border-slate-200">FEV</th>
+                <th class="px-3 py-2 border-b border-slate-200">MAR</th>
+                <th class="px-3 py-2 border-b border-slate-200">ABR</th>
+                <th class="px-3 py-2 border-b border-slate-200">MAI</th>
+                <th class="px-3 py-2 border-b border-slate-200">JUN</th>
+                <th class="px-3 py-2 border-b border-slate-200">JUL</th>
+                <th class="px-3 py-2 border-b border-slate-200">AGO</th>
+                <th class="px-3 py-2 border-b border-slate-200">SET</th>
+                <th class="px-3 py-2 border-b border-slate-200">OUT</th>
+                <th class="px-3 py-2 border-b border-slate-200">NOV</th>
+                <th class="px-3 py-2 border-b border-slate-200">DEZ</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
               <?php foreach ($contratos as $c): ?>
-                <?php
-                  $dataCriacao = '';
-                  if (!empty($c['created_at'])) {
-                    $dt = new DateTime($c['created_at']);
-                    $dataCriacao = $dt->format('d/m/Y');
-                  }
-                ?>
                 <tr class="hover:bg-slate-50">
                   <td class="px-3 py-2 text-sky-700 font-semibold whitespace-nowrap">
                     <?= htmlspecialchars($c['id']) ?>
                   </td>
-                  <td class="px-3 py-2 max-w-xs truncate" title="<?= htmlspecialchars($c['objeto']) ?>">
-                    <?= htmlspecialchars($c['objeto']) ?>
-                  </td>
-                  <td class="px-3 py-2 whitespace-nowrap">
-                    <?= htmlspecialchars($c['status_contrato']) ?>
-                  </td>
-                  <td class="px-3 py-2 whitespace-nowrap">
-                    <?= htmlspecialchars($c['numero_contrato']) ?>
-                  </td>
-                  <td class="px-3 py-2 whitespace-nowrap">
-                    <?= htmlspecialchars($c['credor']) ?>
-                  </td>
-                  <td class="px-3 py-2 text-center">
-                    <?= bool_ptbr_view($c['dea']) ?>
-                  </td>
-                  <td class="px-3 py-2 text-center">
-                    <?= bool_ptbr_view($c['reajuste']) ?>
-                  </td>
-                  <td class="px-3 py-2 whitespace-nowrap">
-                    <?= htmlspecialchars($c['ficha_financeira']) ?>
-                  </td>
-                  <td class="px-3 py-2 whitespace-nowrap">
-                    <?= htmlspecialchars($c['priorizacao']) ?>
-                  </td>
-                  <td class="px-3 py-2 whitespace-nowrap">
-                    <?= $dataCriacao ?>
-                  </td>
+                  <td class="px-3 py-2 whitespace-nowrap"><?= brl_or_empty($c['janeiro']) ?></td>
+                  <td class="px-3 py-2 whitespace-nowrap"><?= brl_or_empty($c['fevereiro']) ?></td>
+                  <td class="px-3 py-2 whitespace-nowrap"><?= brl_or_empty($c['marco']) ?></td>
+                  <td class="px-3 py-2 whitespace-nowrap"><?= brl_or_empty($c['abril']) ?></td>
+                  <td class="px-3 py-2 whitespace-nowrap"><?= brl_or_empty($c['maio']) ?></td>
+                  <td class="px-3 py-2 whitespace-nowrap"><?= brl_or_empty($c['junho']) ?></td>
+                  <td class="px-3 py-2 whitespace-nowrap"><?= brl_or_empty($c['julho']) ?></td>
+                  <td class="px-3 py-2 whitespace-nowrap"><?= brl_or_empty($c['agosto']) ?></td>
+                  <td class="px-3 py-2 whitespace-nowrap"><?= brl_or_empty($c['setembro']) ?></td>
+                  <td class="px-3 py-2 whitespace-nowrap"><?= brl_or_empty($c['outubro']) ?></td>
+                  <td class="px-3 py-2 whitespace-nowrap"><?= brl_or_empty($c['novembro']) ?></td>
+                  <td class="px-3 py-2 whitespace-nowrap"><?= brl_or_empty($c['dezembro']) ?></td>
                 </tr>
               <?php endforeach; ?>
             </tbody>
           </table>
         </div>
-      <?php endif; ?>
+      </div>
+    <?php endif; ?>
+
     </section>
+
   </main>
 
   <script>
-    // botão limpar: limpa campo e volta para home sem parâmetro q
     document.getElementById('btnLimpar')?.addEventListener('click', () => {
       window.location.href = 'home.php';
     });
 
-    // botão pesquisar: recarrega passando ?q=...
     document.getElementById('btnPesquisar')?.addEventListener('click', () => {
       const i = document.getElementById('busca');
       const q = i ? i.value.trim() : '';
@@ -244,7 +321,6 @@ function bool_ptbr_view($v) {
       window.location.href = url.toString();
     });
 
-    // Enter no campo busca = pesquisar
     document.getElementById('busca')?.addEventListener('keyup', (e) => {
       if (e.key === 'Enter') {
         document.getElementById('btnPesquisar')?.click();
