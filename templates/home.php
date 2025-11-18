@@ -10,10 +10,7 @@ if (!isset($_SESSION['usuario'])) {
 
 $nomeUsuario = $_SESSION['usuario']['nome'] ?? 'usuário';
 
-// Conexão com o banco (mesmo config do salvar_contrato.php)
-require_once __DIR__ . '/../config.php'; // precisa existir $poa (mysqli)
-
-// --------- BUSCA / LISTAGEM CONTRATOS ---------
+require_once __DIR__ . '/../config.php'; 
 $busca = trim($_GET['q'] ?? '');
 
 $where  = '1';
@@ -271,6 +268,7 @@ function brl_val($v) {
                   <th class="px-3 py-2 border-b border-slate-200">Ficha Financeira</th>
                   <th class="px-3 py-2 border-b border-slate-200">Grau de Priorização</th>
                   <th class="px-3 py-2 border-b border-slate-200">Data de Criação</th>
+                  <th class="px-3 py-2 border-b border-slate-200 text-center">Ações</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100">
@@ -313,6 +311,54 @@ function brl_val($v) {
                     <td class="px-3 py-2 whitespace-nowrap">
                       <?= $dataCriacao ?>
                     </td>
+
+                    <!-- AÇÕES -->
+                    <td class="px-3 py-2 whitespace-nowrap">
+                      <div class="flex items-center justify-center gap-2 text-slate-400">
+                        <!-- Visualizar -->
+                        <a href="visualizar_contrato.php?id=<?= (int)$c['id'] ?>"
+                           class="hover:text-sky-600"
+                           title="Visualizar">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                               fill="none" stroke="currentColor" stroke-width="2"
+                               stroke-linecap="round" stroke-linejoin="round"
+                               class="w-4 h-4">
+                            <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                          </svg>
+                        </a>
+
+                        <!-- Editar -->
+                        <a href="editar_contrato.php?id=<?= (int)$c['id'] ?>"
+                           class="hover:text-amber-500"
+                           title="Editar">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                               fill="none" stroke="currentColor" stroke-width="2"
+                               stroke-linecap="round" stroke-linejoin="round"
+                               class="w-4 h-4">
+                            <path d="M12 20h9"/>
+                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>
+                          </svg>
+                        </a>
+
+                        <!-- Excluir -->
+                        <button type="button"
+                                class="hover:text-red-500"
+                                title="Excluir"
+                                onclick="confirmDelete(<?= (int)$c['id'] ?>)">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                               fill="none" stroke="currentColor" stroke-width="2"
+                               stroke-linecap="round" stroke-linejoin="round"
+                               class="w-4 h-4">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+                            <path d="M10 11v6"/>
+                            <path d="M14 11v6"/>
+                            <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 <?php endforeach; ?>
               </tbody>
@@ -320,6 +366,7 @@ function brl_val($v) {
           </div>
         </div>
       <?php endif; ?>
+
     </section>
 
     <!-- CAIXA 2: CRONOGRAMA DAS DESPESAS -->
@@ -454,6 +501,13 @@ function brl_val($v) {
         document.getElementById('btnPesquisar')?.click();
       }
     });
+
+    function confirmDelete(id) {
+      if (confirm('Deseja realmente excluir este contrato?')) {
+        // depois você troca essa URL pelo seu endpoint real de exclusão
+        window.location.href = 'excluir_contrato.php?id=' + encodeURIComponent(id);
+      }
+    }
   </script>
 </body>
 </html>
