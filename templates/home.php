@@ -27,6 +27,7 @@ if ($busca !== '') {
 $sql = "
   SELECT
     id,
+    usuario_cehab,
     objeto,
     status_contrato,
     numero_contrato,
@@ -150,9 +151,28 @@ function brl_val($v) {
   return 'R$ ' . number_format((float)$v, 2, ',', '.');
 }
 
+// campos numéricos dos meses (para somar o total de cada contrato)
+$MES_CAMPOS = [
+  'janeiro','fevereiro','marco','abril','maio','junho',
+  'julho','agosto','setembro','outubro','novembro','dezembro'
+];
 
+function nome_curto($nomeCompleto) {
+  $nomeCompleto = trim((string)$nomeCompleto);
+  if ($nomeCompleto === '') return '';
 
+  $partes = preg_split('/\s+/', $nomeCompleto);
+  if (count($partes) === 1) {
+    return $partes[0]; // só um nome
+  }
+
+  $primeiro = $partes[0];
+  $ultimo   = $partes[count($partes) - 1];
+
+  return $primeiro . ' ' . $ultimo; // ex: "Marcos Silva"
+}
 ?>
+
 <!doctype html>
 <html lang="pt-br">
 <head>
@@ -210,7 +230,7 @@ function brl_val($v) {
   </header>
 
   <!-- Content -->
-  <main class="mx-auto w-full max-w-[1700px] px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+  <main class="mx-auto w-full max-w-[2100px] px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
     <!-- CAIXA 1: CONTRATOS EM ANDAMENTO -->
     <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6">
@@ -254,11 +274,12 @@ function brl_val($v) {
         </div>
       <?php else: ?>
         <div class="mt-6 border border-slate-200 rounded-xl overflow-hidden">
-          <div class="max-h-[220px] overflow-y-auto overflow-x-auto">
+          <div class="max-h-[900px] overflow-y-auto overflow-x-auto">
             <table class="min-w-full text-sm">
               <thead class="bg-slate-50">
                 <tr class="text-left text-xs font-semibold text-slate-600 uppercase">
                   <th class="px-3 py-2 border-b border-slate-200">Código POA</th>
+                  <th class="px-3 py-2 border-b border-slate-200">Responsável</th> 
                   <th class="px-3 py-2 border-b border-slate-200">Objeto/Atividade</th>
                   <th class="px-3 py-2 border-b border-slate-200">Status</th>
                   <th class="px-3 py-2 border-b border-slate-200">Nº do Contrato</th>
@@ -267,6 +288,7 @@ function brl_val($v) {
                   <th class="px-3 py-2 border-b border-slate-200">Reajuste</th>
                   <th class="px-3 py-2 border-b border-slate-200">Ficha Financeira</th>
                   <th class="px-3 py-2 border-b border-slate-200">Grau de Priorização</th>
+                  <th class="px-3 py-2 border-b border-slate-200">Total</th>
                   <th class="px-3 py-2 border-b border-slate-200">Data de Criação</th>
                   <th class="px-3 py-2 border-b border-slate-200 text-center">Ações</th>
                 </tr>
@@ -279,10 +301,19 @@ function brl_val($v) {
                       $dt = new DateTime($c['created_at']);
                       $dataCriacao = $dt->format('d/m/Y');
                     }
+
+                    // NOVO: soma dos meses deste contrato
+                    $totalContrato = 0.0;
+                    foreach ($MES_CAMPOS as $campoMes) {
+                      $totalContrato += (float)($c[$campoMes] ?? 0);
+                    }
                   ?>
                   <tr class="hover:bg-slate-50">
                     <td class="px-3 py-2 text-sky-700 font-semibold whitespace-nowrap">
                       <?= htmlspecialchars($c['id']) ?>
+                    </td>
+                    <td class="px-3 py-2 whitespace-nowrap">
+                      <?= htmlspecialchars(nome_curto($c['usuario_cehab'] ?? '')) ?>
                     </td>
                     <td class="px-3 py-2 max-w-xs truncate" title="<?= htmlspecialchars($c['objeto']) ?>">
                       <?= htmlspecialchars($c['objeto']) ?>
@@ -308,6 +339,12 @@ function brl_val($v) {
                     <td class="px-3 py-2 whitespace-nowrap">
                       <?= htmlspecialchars($c['priorizacao']) ?>
                     </td>
+
+                    <!-- NOVO: coluna Total (deixa vazio se for 0) -->
+                    <td class="px-3 py-2 whitespace-nowrap">
+                      <?= $totalContrato > 0 ? brl_val($totalContrato) : '' ?>
+                    </td>
+
                     <td class="px-3 py-2 whitespace-nowrap">
                       <?= $dataCriacao ?>
                     </td>
@@ -366,114 +403,6 @@ function brl_val($v) {
           </div>
         </div>
       <?php endif; ?>
-
-    </section>
-
-    <!-- CAIXA 2: CRONOGRAMA DAS DESPESAS -->
-    <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sm:p-6">
-      <h2 class="text-lg sm:text-xl font-semibold text-slate-900 mb-4">
-        Cronograma das Despesas
-      </h2>
-
-      <?php if (empty($contratos)): ?>
-        <p class="text-sm text-slate-600">Nenhum contrato cadastrado para montar o cronograma.</p>
-      <?php else: ?>
-      <div class="border border-slate-200 rounded-xl overflow-hidden">
-        <div class="max-h-[220px] overflow-y-auto overflow-x-auto">
-          <table class="min-w-full text-sm">
-            <thead class="bg-slate-50">
-              <!-- LINHA DE TOTAIS POR COLUNA -->
-              <tr class="text-xs font-semibold text-slate-700 bg-sky-50">
-                <th class="px-3 py-2 border-b border-slate-200 text-left">TOTAL</th>
-                <th class="px-3 py-2 border-b border-slate-200 whitespace-nowrap">
-                  <?= brl_val($totMeses['jan'] ?? 0) ?>
-                </th>
-                <th class="px-3 py-2 border-b border-slate-200 whitespace-nowrap">
-                  <?= brl_val($totMeses['fev'] ?? 0) ?>
-                </th>
-                <th class="px-3 py-2 border-b border-slate-200 whitespace-nowrap">
-                  <?= brl_val($totMeses['mar'] ?? 0) ?>
-                </th>
-                <th class="px-3 py-2 border-b border-slate-200 whitespace-nowrap">
-                  <?= brl_val($totMeses['abr'] ?? 0) ?>
-                </th>
-                <th class="px-3 py-2 border-b border-slate-200 whitespace-nowrap">
-                  <?= brl_val($totMeses['mai'] ?? 0) ?>
-                </th>
-                <th class="px-3 py-2 border-b border-slate-200 whitespace-nowrap">
-                  <?= brl_val($totMeses['jun'] ?? 0) ?>
-                </th>
-                <th class="px-3 py-2 border-b border-slate-200 whitespace-nowrap">
-                  <?= brl_val($totMeses['jul'] ?? 0) ?>
-                </th>
-                <th class="px-3 py-2 border-b border-slate-200 whitespace-nowrap">
-                  <?= brl_val($totMeses['ago'] ?? 0) ?>
-                </th>
-                <th class="px-3 py-2 border-b border-slate-200 whitespace-nowrap">
-                  <?= brl_val($totMeses['set_'] ?? 0) ?>
-                </th>
-                <th class="px-3 py-2 border-b border-slate-200 whitespace-nowrap">
-                  <?= brl_val($totMeses['out_'] ?? 0) ?>
-                </th>
-                <th class="px-3 py-2 border-b border-slate-200 whitespace-nowrap">
-                  <?= brl_val($totMeses['nov'] ?? 0) ?>
-                </th>
-                <th class="px-3 py-2 border-b border-slate-200 whitespace-nowrap">
-                  <?= brl_val($totMeses['dez'] ?? 0) ?>
-                </th>
-              </tr>
-
-              <!-- LINHA DOS NOMES DOS MESES -->
-              <tr class="text-left text-xs font-semibold text-slate-600 uppercase">
-                <th class="px-3 py-2 border-b border-slate-200">Código POA</th>
-                <th class="px-3 py-2 border-b border-slate-200">JAN</th>
-                <th class="px-3 py-2 border-b border-slate-200">FEV</th>
-                <th class="px-3 py-2 border-b border-slate-200">MAR</th>
-                <th class="px-3 py-2 border-b border-slate-200">ABR</th>
-                <th class="px-3 py-2 border-b border-slate-200">MAI</th>
-                <th class="px-3 py-2 border-b border-slate-200">JUN</th>
-                <th class="px-3 py-2 border-b border-slate-200">JUL</th>
-                <th class="px-3 py-2 border-b border-slate-200">AGO</th>
-                <th class="px-3 py-2 border-b border-slate-200">SET</th>
-                <th class="px-3 py-2 border-b border-slate-200">OUT</th>
-                <th class="px-3 py-2 border-b border-slate-200">NOV</th>
-                <th class="px-3 py-2 border-b border-slate-200">DEZ</th>
-              </tr>
-            </thead>
-
-            <tbody class="divide-y divide-slate-100">
-              <?php foreach ($contratos as $c): ?>
-                <tr class="hover:bg-slate-50">
-                  <td class="px-3 py-2 text-sky-700 font-semibold whitespace-nowrap">
-                    <?= htmlspecialchars($c['id']) ?>
-                  </td>
-                  <td class="px-3 py-2 whitespace-nowrap"><?= brl_or_empty($c['janeiro']) ?></td>
-                  <td class="px-3 py-2 whitespace-nowrap"><?= brl_or_empty($c['fevereiro']) ?></td>
-                  <td class="px-3 py-2 whitespace-nowrap"><?= brl_or_empty($c['marco']) ?></td>
-                  <td class="px-3 py-2 whitespace-nowrap"><?= brl_or_empty($c['abril']) ?></td>
-                  <td class="px-3 py-2 whitespace-nowrap"><?= brl_or_empty($c['maio']) ?></td>
-                  <td class="px-3 py-2 whitespace-nowrap"><?= brl_or_empty($c['junho']) ?></td>
-                  <td class="px-3 py-2 whitespace-nowrap"><?= brl_or_empty($c['julho']) ?></td>
-                  <td class="px-3 py-2 whitespace-nowrap"><?= brl_or_empty($c['agosto']) ?></td>
-                  <td class="px-3 py-2 whitespace-nowrap"><?= brl_or_empty($c['setembro']) ?></td>
-                  <td class="px-3 py-2 whitespace-nowrap"><?= brl_or_empty($c['outubro']) ?></td>
-                  <td class="px-3 py-2 whitespace-nowrap"><?= brl_or_empty($c['novembro']) ?></td>
-                  <td class="px-3 py-2 whitespace-nowrap"><?= brl_or_empty($c['dezembro']) ?></td>
-                </tr>
-              <?php endforeach; ?>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- TOTAL GERAL EMBAIXO DA TABELA -->
-      <div class="mt-4 inline-flex items-center gap-2 rounded-xl bg-sky-50 border border-sky-100 px-4 py-2 text-sm text-slate-700">
-        <span class="font-medium">Total R$:</span>
-        <span class="font-semibold text-slate-900">
-          <?= brl_val($totalGeralMeses) ?>
-        </span>
-      </div>
-    <?php endif; ?>
 
     </section>
 

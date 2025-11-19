@@ -100,6 +100,30 @@ $mesCampos = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agos
 
   <!-- Form container -->
   <main class="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-8">
+
+    <?php if (isset($_GET['ok']) && $_GET['ok'] == '1'): ?>
+      <!-- Modal de sucesso -->
+      <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+        <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 text-center space-y-4">
+          <h2 class="text-lg font-semibold text-slate-900">Contrato atualizado!</h2>
+          <p class="text-sm text-slate-600">
+            As informações do contrato foram salvas com sucesso.
+          </p>
+          <div class="flex justify-center gap-3 pt-2">
+            <a href="home.php"
+               class="inline-flex items-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+              Voltar para a lista
+            </a>
+            <a href="editar_contrato.php?id=<?= (int)$id ?>"
+               class="inline-flex items-center rounded-xl border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+              Continuar editando
+            </a>
+          </div>
+        </div>
+      </div>
+    <?php endif; ?>
+
+
     <form class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-8"
           action="atualizar_contrato.php"
           method="post"
