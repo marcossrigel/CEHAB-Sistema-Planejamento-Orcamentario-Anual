@@ -95,7 +95,9 @@ $totMeses = $resSum ? $resSum->fetch_assoc() : [
   'jul'=>0,'ago'=>0,'set_'=>0,'out_'=>0,'nov'=>0,'dez'=>0
 ];
 
-$totalGeralMeses = array_sum($totMeses);
+// soma geral dos meses (soma da coluna Total)
+$totalGeralMeses  = array_sum($totMeses);
+$totalColunaTotal = (float)$totalGeralMeses;
 
 // --------- GRAVA NAS TABELAS valores_acumulados E soma_total ---------
 $mapMeses = [
@@ -260,6 +262,17 @@ function nome_curto($nomeCompleto) {
         <div class="flex gap-2">
           <button id="btnPesquisar" class="inline-flex items-center justify-center rounded-xl bg-blue-600 text-white text-sm font-medium px-4 py-2.5 shadow hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">Pesquisar</button>
           <button id="btnLimpar" class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white text-slate-700 text-sm font-medium px-4 py-2.5 hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-300">Limpar</button>
+        </div>
+      </div>
+
+      <div class="mt-4 flex flex-wrap gap-3">
+        <div class="inline-flex items-center gap-3 rounded-xl bg-slate-50 border border-slate-200 px-4 py-3 text-sm">
+          <span class="text-slate-600 font-medium">
+            Total: 
+          </span>
+          <span class="text-slate-900 font-semibold">
+            <?= brl_val($totalGeralMeses) ?>
+          </span>
         </div>
       </div>
 
