@@ -45,9 +45,39 @@ $mesCampos = [
   'setembro','outubro','novembro','dezembro'
 ];
 
+// ======================= CÓDIGO POA ==========================
+$temaSelecionado = $_POST['tema_custo'] ?? null;
+$codigo_poa = null;
+
+if (!empty($temaSelecionado)) {
+  // pega só o número antes do " - "
+  $temaCodigo = '';
+  $parts = explode(' - ', $temaSelecionado, 2);
+  $temaCodigo = trim($parts[0] ?? '');
+
+  if ($temaCodigo !== '') {
+    // conta quantos registros já existem com esse mesmo tema_custo
+    $sqlCount = "SELECT COUNT(*) AS qtde FROM novo_contrato WHERE tema_custo = ?";
+    if ($stmtCount = $poa->prepare($sqlCount)) {
+      $stmtCount->bind_param('s', $temaSelecionado);
+      $stmtCount->execute();
+      $resCount = $stmtCount->get_result();
+      $rowCount = $resCount ? $resCount->fetch_assoc() : ['qtde' => 0];
+      $seq = (int)($rowCount['qtde'] ?? 0) + 1; // próxima ocorrência
+
+      // monta tipo "10.1", "10.2", ...
+      $codigo_poa = $temaCodigo . '.' . $seq;
+    }
+  }
+}
+// =============================================================
+
 $campos = [
+  // entra como primeira coluna
+  'codigo_poa'       => $codigo_poa,
+
   'usuario_cehab'    => $_SESSION['usuario']['nome'] ?? null,
-  'tema_custo'       => $_POST['tema_custo'] ?? null,
+  'tema_custo'       => $temaSelecionado,
   'setor'            => $_POST['setor'] ?? null,
   'gestor'           => $_POST['gestor'] ?? null,
   'objeto'           => $_POST['objeto'] ?? null,
@@ -90,15 +120,21 @@ $values = [];
 $numericos = array_merge(['valor_total'], $mesCampos);
 
 foreach ($campos as $k => $v) {
-  if (in_array($k, $numericos, true)) { $types .= 'd'; $values[] = (float)$v; }
-  elseif (in_array($k, ['dea','reajuste','prorrogavel'], true)) { $types .= 'i'; $values[] = is_null($v) ? null : (int)$v; }
-  else { $types .= 's'; $values[] = $v; }
+  if (in_array($k, $numericos, true)) {
+    $types .= 'd';
+    $values[] = (float)$v;
+  } elseif (in_array($k, ['dea','reajuste','prorrogavel'], true)) {
+    $types .= 'i';
+    $values[] = is_null($v) ? null : (int)$v;
+  } else {
+    $types .= 's';
+    $values[] = $v;
+  }
 }
 
 $stmt->bind_param($types, ...$values);
 
 if ($stmt->execute()) {
-  // Em vez de redirecionar, exibe o modal de sucesso
   ?>
   <!doctype html>
   <html lang="pt-br">
@@ -109,7 +145,6 @@ if ($stmt->execute()) {
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body class="bg-slate-50 flex items-center justify-center min-h-screen">
-    <!-- Modal de sucesso -->
     <div class="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
       <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md text-center">
         <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-14 w-14 text-green-500 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">

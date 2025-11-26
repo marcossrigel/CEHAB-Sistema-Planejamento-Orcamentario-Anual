@@ -8,25 +8,44 @@ if (!isset($_SESSION['usuario'])) {
   exit;
 }
 
-$nomeUsuario = $_SESSION['usuario']['nome'] ?? 'usuário';
+$nomeUsuario  = trim($_SESSION['usuario']['nome']  ?? 'usuário');
+$loginUsuario = trim($_SESSION['usuario']['login'] ?? '');
+$cargoUsuario = trim($_SESSION['usuario']['cargo'] ?? '');
+
+$nomeCheck   = mb_strtolower($nomeUsuario, 'UTF-8');
+$loginCheck  = mb_strtolower($loginUsuario, 'UTF-8');
+$cargoCheck  = mb_strtolower($cargoUsuario, 'UTF-8');
+
+$isAdmin = ($cargoCheck === 'gestor' || $loginCheck === 'bruno.passavante' || $nomeCheck === 'bruno passavante de oliveira');
+$identUsuario = $nomeUsuario;
 
 require_once __DIR__ . '/../config.php'; 
 $busca = trim($_GET['q'] ?? '');
 
-$where  = '1';
+$where  = "1";
 $params = [];
-$types  = '';
+$types  = "";
+
+if (!$isAdmin) {
+    // filtra pelo nome, que é o que está em usuario_cehab
+    $where .= " AND usuario_cehab = ?";
+    $params[] = $identUsuario;
+    $types   .= "s";
+}
 
 if ($busca !== '') {
-  $where .= " AND (numero_contrato LIKE ? OR credor LIKE ? OR objeto LIKE ?)";
-  $like   = "%{$busca}%";
-  $params = [$like, $like, $like];
-  $types  = 'sss';
+    $where .= " AND (numero_contrato LIKE ? OR credor LIKE ? OR objeto LIKE ?)";
+    $like   = "%{$busca}%";
+    $params[] = $like;
+    $params[] = $like;
+    $params[] = $like;
+    $types   .= "sss";
 }
 
 $sql = "
   SELECT
     id,
+    codigo_poa,
     usuario_cehab,
     objeto,
     status_contrato,
@@ -212,6 +231,16 @@ function nome_curto($nomeCompleto) {
         </div>
       </div>
 
+
+      <a href="relatorio_poa.php"
+          class="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-white text-sm font-medium shadow hover:bg-emerald-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+          title="Gerar relatório">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
+          <path d="M7 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9.828a2 2 0 0 0-.586-1.414l-4.828-4.828A2 2 0 0 0 12.172 3H7Zm5 2v4h4" />
+          <path d="M9 13h6v2H9zm0 4h4v2H9z" />
+        </svg> Gerar Relatório
+      </a>
+
       <!-- Right / Actions -->
       <div class="flex items-center gap-3">
         <a href="formulario.php" class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-white text-sm font-medium shadow hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
@@ -289,23 +318,23 @@ function nome_curto($nomeCompleto) {
         <div class="mt-6 border border-slate-200 rounded-xl overflow-hidden">
           <div class="max-h-[900px] overflow-y-auto overflow-x-auto">
             <table class="min-w-full text-sm">
-              <thead class="bg-slate-50">
-                <tr class="text-left text-xs font-semibold text-slate-600 uppercase">
-                  <th class="px-3 py-2 border-b border-slate-200">Código POA</th>
-                  <th class="px-3 py-2 border-b border-slate-200">Responsável</th> 
-                  <th class="px-3 py-2 border-b border-slate-200">Objeto/Atividade</th>
-                  <th class="px-3 py-2 border-b border-slate-200">Status</th>
-                  <th class="px-3 py-2 border-b border-slate-200">Nº do Contrato</th>
-                  <th class="px-3 py-2 border-b border-slate-200">Credor</th>
-                  <th class="px-3 py-2 border-b border-slate-200">DEA</th>
-                  <th class="px-3 py-2 border-b border-slate-200">Reajuste</th>
-                  <th class="px-3 py-2 border-b border-slate-200">Ficha Financeira</th>
-                  <th class="px-3 py-2 border-b border-slate-200">Grau de Priorização</th>
-                  <th class="px-3 py-2 border-b border-slate-200">Total</th>
-                  <th class="px-3 py-2 border-b border-slate-200">Data de Criação</th>
-                  <th class="px-3 py-2 border-b border-slate-200 text-center">Ações</th>
-                </tr>
-              </thead>
+            <thead class="bg-slate-50">
+            <tr class="text-left text-xs font-semibold text-slate-600 uppercase">
+              <th class="px-3 py-2 border-b border-slate-200">CÓDIGO POA</th>
+              <th class="px-3 py-2 border-b border-slate-200">Responsável</th> 
+              <th class="px-3 py-2 border-b border-slate-200">Objeto/Atividade</th>
+              <th class="px-3 py-2 border-b border-slate-200">Status</th>
+              <th class="px-3 py-2 border-b border-slate-200">Nº do Contrato</th>
+              <th class="px-3 py-2 border-b border-slate-200">Credor</th>
+              <th class="px-3 py-2 border-b border-slate-200">DEA</th>
+              <th class="px-3 py-2 border-b border-slate-200">Reajuste</th>
+              <th class="px-3 py-2 border-b border-slate-200">Ficha Financeira</th>
+              <th class="px-3 py-2 border-b border-slate-200">Grau de Priorização</th>
+              <th class="px-3 py-2 border-b border-slate-200">Total</th>
+              <th class="px-3 py-2 border-b border-slate-200">Data de Criação</th>
+              <th class="px-3 py-2 border-b border-slate-200 text-center">Ações</th>
+            </tr>
+          </thead>
               <tbody class="divide-y divide-slate-100">
                 <?php foreach ($contratos as $c): ?>
                   <?php
@@ -323,7 +352,7 @@ function nome_curto($nomeCompleto) {
                   ?>
                   <tr class="hover:bg-slate-50">
                     <td class="px-3 py-2 text-sky-700 font-semibold whitespace-nowrap">
-                      <?= htmlspecialchars($c['id']) ?>
+                      <?= htmlspecialchars($c['codigo_poa'] ?: $c['id']) ?>
                     </td>
                     <td class="px-3 py-2 whitespace-nowrap">
                       <?= htmlspecialchars(nome_curto($c['usuario_cehab'] ?? '')) ?>

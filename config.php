@@ -6,7 +6,7 @@ if ($poa->connect_error) {
 }
 $poa->set_charset('utf8mb4');
 
-// Conexão 2: lê do cehab_online (remoto)
+
 $cehab = new mysqli('172.19.16.15', 'siscreche', 'Cehab@123_', 'cehab_online');
 if ($cehab->connect_error) {
   die('Erro CEHAB: '.$cehab->connect_error);
