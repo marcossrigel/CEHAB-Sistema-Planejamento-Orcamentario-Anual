@@ -256,6 +256,15 @@ function nome_curto($nomeCompleto) {
           </svg>
           Sair
         </a>
+
+        <a href="suporte.php"
+          class="inline-flex items-center justify-center rounded-xl bg-indigo-600 px-3 py-2 text-white text-sm font-medium shadow hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+          title="Suporte / WhatsApp">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                class="w-5 h-5">
+            <path d="M12 1a11 11 0 1 0 0 22 11 11 0 0 0 0-22Zm1 17h-2v-2h2v2Zm1.07-7.75-.9.92A3.5 3.5 0 0 0 11.5 15h-2v-1.5h2a2 2 0 0 1 1.4-.6c.37 0 .73-.16 1-.44l1.06-1.08a1.5 1.5 0 1 0-2.12-2.12L11 10.88 9.88 9.76l1.41-1.41a3.5 3.5 0 1 1 4.95 4.95l-.17.17Z"/>
+          </svg>
+        </a>
       </div>
     </div>
   </header>

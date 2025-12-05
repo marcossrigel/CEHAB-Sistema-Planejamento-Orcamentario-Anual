@@ -1,5 +1,5 @@
 <?php
-// templates/editar_contrato.php
+
 if (session_status() !== PHP_SESSION_ACTIVE) session_start();
 
 if (!isset($_SESSION['usuario'])) {
@@ -8,7 +8,7 @@ if (!isset($_SESSION['usuario'])) {
   exit;
 }
 
-require_once __DIR__ . '/../config.php'; // precisa existir $poa (mysqli)
+require_once __DIR__ . '/../config.php';
 
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if ($id <= 0) {
@@ -63,6 +63,7 @@ if (!empty($contrato['vigencia_inicio']) && !empty($contrato['vigencia_fim'])) {
 $mesLabels = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
 $mesCampos = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 ?>
+
 <!doctype html>
 <html lang="pt-br">
 <head>

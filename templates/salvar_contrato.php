@@ -63,17 +63,14 @@ if (!empty($temaSelecionado)) {
       $stmtCount->execute();
       $resCount = $stmtCount->get_result();
       $rowCount = $resCount ? $resCount->fetch_assoc() : ['qtde' => 0];
-      $seq = (int)($rowCount['qtde'] ?? 0) + 1; // próxima ocorrência
-
-      // monta tipo "10.1", "10.2", ...
+      $seq = (int)($rowCount['qtde'] ?? 0) + 1; 
+      
       $codigo_poa = $temaCodigo . '.' . $seq;
     }
   }
 }
-// =============================================================
 
 $campos = [
-  // entra como primeira coluna
   'codigo_poa'       => $codigo_poa,
 
   'usuario_cehab'    => $_SESSION['usuario']['nome'] ?? null,

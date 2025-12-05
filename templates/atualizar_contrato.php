@@ -1,5 +1,4 @@
 <?php
-// templates/atualizar_contrato.php
 if (session_status() !== PHP_SESSION_ACTIVE) session_start();
 
 if (!isset($_SESSION['usuario'])) {
@@ -8,7 +7,7 @@ if (!isset($_SESSION['usuario'])) {
   exit;
 }
 
-require_once __DIR__ . '/../config.php'; // precisa existir $poa (mysqli)
+require_once __DIR__ . '/../config.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
   die('Método inválido.');
@@ -19,10 +18,9 @@ if ($id <= 0) {
   die('ID de contrato inválido.');
 }
 
-// ------- helpers -------
 function parse_brl($str) {
   if ($str === null || $str === '') return 0.0;
-  $str = preg_replace('/[^\d,.-]/', '', $str); // tira R$, espaços etc
+  $str = preg_replace('/[^\d,.-]/', '', $str);
   $str = str_replace('.', '', $str);
   $str = str_replace(',', '.', $str);
   return (float)$str;
@@ -38,21 +36,20 @@ function bool_from_label($v) {
 }
 
 function parse_vigencia($str) {
-  // espera "mm/aaaa - mm/aaaa"
   $str = trim((string)$str);
   if ($str === '') return [null, null];
 
   $parts = explode('-', $str);
   if (count($parts) !== 2) return [null, null];
 
-  $ini = trim($parts[0]); // mm/aaaa
-  $fim = trim($parts[1]); // mm/aaaa
+  $ini = trim($parts[0]); 
+  $fim = trim($parts[1]); 
 
   $vigIni = null;
   $vigFim = null;
 
   if (preg_match('#^(\d{2})/(\d{4})$#', $ini, $m)) {
-    $vigIni = $m[2] . '-' . $m[1] . '-01'; // primeiro dia do mês
+    $vigIni = $m[2] . '-' . $m[1] . '-01';
   }
   if (preg_match('#^(\d{2})/(\d{4})$#', $fim, $m)) {
     // último dia do mês
@@ -63,7 +60,6 @@ function parse_vigencia($str) {
   return [$vigIni, $vigFim];
 }
 
-// ------- coleta campos -------
 $tema_custo       = $_POST['tema_custo']       ?? '';
 $setor            = $_POST['setor']            ?? '';
 $gestor           = $_POST['gestor']           ?? '';
@@ -86,24 +82,19 @@ $priorizacao      = $_POST['priorizacao']      ?? '';
 $prorrogavel_lbl  = $_POST['prorrogavel']      ?? '';
 $mesesPost        = $_POST['mes']              ?? [];
 
-// converte vigência
 list($vigencia_inicio, $vigencia_fim) = parse_vigencia($vigencia_str);
 
-// converte booleanos
 $dea        = bool_from_label($dea_label);
 $reajuste   = bool_from_label($reajuste_label);
 $prorrogavel = bool_from_label($prorrogavel_lbl);
 
-// valor total
 $valor_total = parse_brl($valor_total_str);
 
-// meses (0..11)
 $mesVals = [];
 for ($i = 0; $i < 12; $i++) {
   $mesVals[$i] = isset($mesesPost[$i]) ? parse_brl($mesesPost[$i]) : 0.0;
 }
 
-// ------- monta UPDATE -------
 $sql = "
   UPDATE novo_contrato
   SET
@@ -148,7 +139,6 @@ if (!$stmt) {
   die('Erro ao preparar UPDATE: ' . $poa->error);
 }
 
-// monta types/params dinamicamente pra não errar
 $types  = '';
 $params = [];
 
@@ -191,6 +181,5 @@ if (!$stmt->execute()) {
   die('Erro ao atualizar contrato: ' . $stmt->error);
 }
 
-// tudo ok -> volta para a edição com flag de sucesso
 header("Location: editar_contrato.php?id=" . $id . "&ok=1");
 exit;
