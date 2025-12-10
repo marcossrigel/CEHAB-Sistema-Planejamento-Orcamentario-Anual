@@ -95,6 +95,7 @@ $campos = [
   'macro_tema'       => $_POST['macro_tema'] ?? null,
   'priorizacao'      => $_POST['priorizacao'] ?? null,
   'prorrogavel'      => bool_ptbr($_POST['prorrogavel'] ?? null),
+  'observacoes'      => $_POST['observacoes'] ?? null,
 ];
 
 foreach ($mesCampos as $i => $nomeMes) {

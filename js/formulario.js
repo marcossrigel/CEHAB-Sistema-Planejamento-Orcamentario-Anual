@@ -6,7 +6,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function somar() {
     let total = 0;
-    document.querySelectorAll('.moeda').forEach(i => total += parseMoeda(i.value));
+
+    // soma apenas os campos da Tabela de Meses
+    document.querySelectorAll('.moeda-mes').forEach(i => {
+      total += parseMoeda(i.value);
+    });
+
     const totalEl = document.getElementById('totalMeses');
     if (totalEl) totalEl.textContent = fmt.format(total);
   }
@@ -16,10 +21,10 @@ document.addEventListener('DOMContentLoaded', () => {
     somar();
   }
 
-  // liga as máscaras/soma
-  document.querySelectorAll('.moeda').forEach(i => i.addEventListener('input', formatar));
-  const valorTotal = document.getElementById('valor_total');
-  if (valorTotal) valorTotal.addEventListener('input', formatar);
+document.querySelectorAll('.moeda-mes').forEach(i => i.addEventListener('input', formatar));
+// e também no Valor Total do Contrato
+document.querySelectorAll('.moeda-total').forEach(i => i.addEventListener('input', formatar));
+
 
   function flashSelect(el) {
     if (!el) return;
