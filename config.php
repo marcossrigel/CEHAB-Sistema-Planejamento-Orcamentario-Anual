@@ -1,5 +1,4 @@
 <?php
-// Conexão 1: escreve no planejamento_orcamentario (local)
 $poa = new mysqli('127.0.0.1', 'root', '', 'planejamento_orcamentario');
 if ($poa->connect_error) {
   die('Erro POA: '.$poa->connect_error);
