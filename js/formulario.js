@@ -122,7 +122,7 @@ document.querySelectorAll('.moeda-total').forEach(i => i.addEventListener('input
   const fichaEl      = document.getElementById('ficha_financeira');
 
     // campos que podem ser travados pelo Tema de Custo
-  const camposAuto = [fonteEl, grupoSelect, acaoEl, subEl, fichaEl];
+  const camposAuto = [fonteEl, grupoSelect, acaoEl, subEl];
 
   function setCamposDisabled(disabled) {
   camposAuto.forEach(el => {
@@ -152,15 +152,13 @@ document.querySelectorAll('.moeda-total').forEach(i => i.addEventListener('input
   });
 }
 
-
-
   // snapshot inicial dos selects que serão filtrados
-  [fonteEl, grupoSelect, acaoEl].forEach(snapshotOptions);
+[fonteEl, grupoSelect, acaoEl, fichaEl].forEach(snapshotOptions);
+
 
   let autoLock = false;
   const getTemaCodigo = () =>
     ((temaSelect?.value || '').split(' - ')[0] || '').trim();
-
   // ===================== REGRAS POR TEMA =====================
 function aplicarRegraTema() {
   if (!temaSelect) return;
@@ -229,38 +227,38 @@ function aplicarRegraTema() {
 
   // ======== Regras já existentes (mantidas) ========
   const THEME_RULES = {
-    '01': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS', ficha:'G3 - Apoio Administrativo - Estagiários' },
-    '02': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'B662 - Despesas com combustível da CEHAB', ficha:['G3 - Combustíveis/Manutenção Veículos','G3 - Combustíveis/Manutenção/ Veículos'] },
-    '03': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS', ficha:'G3 - Demandas Judiciais' },
-    '04': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS', ficha:'G3 - Diárias Civil' },
-    '05': { acao:'2928 - Conservação do Patrimonio Público na Companhia Estadual de Habitação e Obras - CHEAB', sub:'B665 - Prestação de serviços de limpeza e conservação da CEHAB', ficha:'G3 - Limpeza e Conservação' },
-    '06': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'B666 - Despesas com locação de veículos da CEHAB', ficha:'G3 - Locação de Veículos' },
-    '07': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS', ficha:'G3 - Manutenção Predial' },
-    '08': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS', ficha:'G3 - Material de Expediente/Copa/Limpeza/Gráfico' },
-    '09': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'B667 - Prestação de serviços de motorista na CEHAB', ficha:'G3 - Motoristas' },
-    '10': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'B669 - Pagamento de apenados em processo de ressocialização na CEHAB', ficha:'G3 - Salário de Apenados' },
-    '11': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'2790 - Manutenção da Tecnologia de Informação e Comunicação da CEHAB', ficha:'G3 - Rede Digital Corporativa do Estado' },
-    '12': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS', ficha:'G3 - Serviços de Portaria' },
-    '13': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS', ficha:'G3 - Serviços de Informática' },
-    '14': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS', ficha:'G3 - Suprimento Individual' },
-    '15': { acao:['2928 - Conservação do Patrimônio Público na Companhia Estadual de Habitação','2928 - Conservação do Patrimônio Público na Companhia Estadual de Habitação e Obras - CEHAB'], sub:'B670 - Prestação de serviços de segurança pessoal e patrimonial na CEHAB', ficha:'G3 - Vigilância Ostensiva' },
+    '01': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS'},
+    '02': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'B662 - Despesas com combustível da CEHAB'},
+    '03': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS'},
+    '04': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS'},
+    '05': { acao:'2928 - Conservação do Patrimonio Público na Companhia Estadual de Habitação e Obras - CHEAB', sub:'B665 - Prestação de serviços de limpeza e conservação da CEHAB'},
+    '06': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'B666 - Despesas com locação de veículos da CEHAB'},
+    '07': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS'},
+    '08': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS'},
+    '09': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'B667 - Prestação de serviços de motorista na CEHAB' },
+    '10': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'B669 - Pagamento de apenados em processo de ressocialização na CEHAB'},
+    '11': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'2790 - Manutenção da Tecnologia de Informação e Comunicação da CEHAB'},
+    '12': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS'},
+    '13': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS'},
+    '14': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS'},
+    '15': { acao:['2928 - Conservação do Patrimônio Público na Companhia Estadual de Habitação','2928 - Conservação do Patrimônio Público na Companhia Estadual de Habitação e Obras - CEHAB'], sub:'B670 - Prestação de serviços de segurança pessoal e patrimonial na CEHAB'},
     '16': { acao:'4300 - Execução de Obras de Infraestrutura e de Urbanização', sub:'2794 - Auxílio Moradia - CEHAB' }, // sem ficha
-    '17': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS', ficha:'G3 - Cota Global' },
-    '18': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS', ficha:'G3 - Fornecimento de Passagens' },
-    '19': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:['B664 - Despesas com tarifa de energia elétrica da CEHAB','B664 - Despesas com tarifa de energia'], ficha:'G3 - Energia Elétrica' },
-    '20': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:['B661 - Despesas com taxa de água e esgoto da CEHAB','B661 - Despesas com taxa de água e esgoto'], ficha:'G3 - Água e Esgoto' },
-    '22': { grupo:['1 - Pessoal','1 - Pessoal e Encargos Sociais'], acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS', ficha:'G1 - Pessoal e Encargos Sociais' },
-    '23': { grupo:['1 - Pessoal','1 - Pessoal e Encargos Sociais'], acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS', ficha:'G1 - FGTS' },
-    '24': { grupo:['1 - Pessoal','1 - Pessoal e Encargos Sociais'], acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS', ficha:'G1 - INSS' },
-    '25': { grupo:['1 - Pessoal','1 - Pessoal e Encargos Sociais'], acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS', ficha:'G1 - Ressarcimento Pessoal à Disposição' },
+    '17': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS'},
+    '18': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS'},
+    '19': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:['B664 - Despesas com tarifa de energia elétrica da CEHAB','B664 - Despesas com tarifa de energia']},
+    '20': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:['B661 - Despesas com taxa de água e esgoto da CEHAB','B661 - Despesas com taxa de água e esgoto']},
+    '22': { grupo:['1 - Pessoal','1 - Pessoal e Encargos Sociais'], acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS'},
+    '23': { grupo:['1 - Pessoal','1 - Pessoal e Encargos Sociais'], acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS'},
+    '24': { grupo:['1 - Pessoal','1 - Pessoal e Encargos Sociais'], acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS'},
+    '25': { grupo:['1 - Pessoal','1 - Pessoal e Encargos Sociais'], acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS'},
     '26': { grupo:['4 - Investimentos'], acao:'4300 - Execução de Obras de Infraestrutura e de Urbanização' },
-    '30': { acao:'3927 - Manutenção da Ouvidoria da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS', ficha:'G3 - Outros' },
-    '33': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'2791 - Fornecimento de vale transporte para servidores da CEHAB', ficha:['G3 - Vale / Auxílio Transporte','G3 - Vale/Auxílio Transporte','G3 - Vale Transporte'] },
-    '34': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'2792 - Fornecimento de vale alimentação para servidores da CEHAB', ficha:['G3 - Vale / Auxílio Alimentação','G3 - Vale/Auxílio Alimentação','G3 - Vale Alimentação'] },
-    '35': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:['B668 - Despesas com publicações oficiais da CEHAB em diário oficial','B668 - Despesas com publicações oficiais'], ficha:'G3 - Publicações Oficiais' },
-    '36': { grupo:['1 - Pessoal','1 - Pessoal e Encargos Sociais'], acao:'4587 - Contribuições Patronais da CEHAB', sub:'2787 - Contribuições Patronais da CEHAB ao FUNAFIN', ficha:'G1 - Pessoal e Encargos Sociais' },
-    '37': { acao:'4613 - Encargos com o PIS e o COFINS da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS', ficha:'G3 - Outros' },
-    '38': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'B669 - Pagamento de apenados em processo de ressocialização na CEHAB', ficha:'G3 - Apoio Administrativo' }
+    '30': { acao:'3927 - Manutenção da Ouvidoria da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS'},
+    '33': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'2791 - Fornecimento de vale transporte para servidores da CEHAB'},
+    '34': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'2792 - Fornecimento de vale alimentação para servidores da CEHAB'},
+    '35': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:['B668 - Despesas com publicações oficiais da CEHAB em diário oficial','B668 - Despesas com publicações oficiais']},
+    '36': { grupo:['1 - Pessoal','1 - Pessoal e Encargos Sociais'], acao:'4587 - Contribuições Patronais da CEHAB', sub:'2787 - Contribuições Patronais da CEHAB ao FUNAFIN' },
+    '37': { acao:'4613 - Encargos com o PIS e o COFINS da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS'},
+    '38': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'B669 - Pagamento de apenados em processo de ressocialização na CEHAB'}
   };
 
   // ================== Tema 29 (regras por GRUPO, mas campos livres) ==================
@@ -316,7 +314,6 @@ function aplicarRegraTema() {
     pickOption(grupoSelect, ['4 - Investimentos','4 -']);
     pickOption(acaoEl, '4300 - Execução de Obras de Infraestrutura e de Urbanização');
     if (subEl) subEl.value = '';
-    pickOption(fichaEl, 'G4 - Projeto de Obra');
     autoLock = false;
     setCamposDisabled(true);
     return;
@@ -329,7 +326,6 @@ function aplicarRegraTema() {
     pickOption(grupoSelect, ['4 - Investimentos','4 -']);
     pickOption(acaoEl, '4300 - Execução de Obras de Infraestrutura e de Urbanização');
     if (subEl) subEl.value = '';
-    pickOption(fichaEl, 'G4 - Supervisão de Obra');
     autoLock = false;
     setCamposDisabled(true);
     return;
@@ -361,7 +357,7 @@ function aplicarRegraTema() {
 
     pickOption(acaoEl,  toQueries(cfg.acao));
     pickOption(subEl,   toQueries(cfg.sub));
-    pickOption(fichaEl, toQueries(cfg.ficha));
+    if (fichaEl) fichaEl.value = '';
 
     autoLock = false;
     setCamposDisabled(true); // aqui trava para os temas "fechados"
@@ -382,9 +378,7 @@ function aplicarRegraFonte() {
     pickOption(grupoSelect, ['4 - Investimentos','4 -']);
     pickOption(acaoEl, '4058 - Ampliação da Oferta e Requalificação de Habitação de Interesse Social');
     pickOption(subEl,  '0055 - Programa Minha Casa (Operações Coletivas, CAIC, FNHIS e PSH)');
-    if (is0700) pickOption(fichaEl, 'G4 - Recursos do Concedente');
-    else if (is0754) pickOption(fichaEl, 'G4 - Operações de Crédito');
-    else if (is0500) { if (fichaEl) fichaEl.value = ''; }
+    if (fichaEl) fichaEl.value = '';
     autoLock = false;
     return;
   }
@@ -394,8 +388,7 @@ function aplicarRegraFonte() {
     pickOption(grupoSelect, ['4 - Investimentos','4 -']);
     pickOption(acaoEl, '4058 - Ampliação da Oferta e Requalificação de Habitação de Interesse Social');
     pickOption(subEl,  '0865 - Operacionalização do Programa Minha Casa Minha Vida');
-    if (is0700) pickOption(fichaEl, 'G4 - Recursos do Concedente');
-    else if (is0500) { if (fichaEl) fichaEl.value = ''; }
+    if (fichaEl) fichaEl.value = '';
     autoLock = false;
     return;
   }
@@ -406,11 +399,11 @@ function aplicarRegraFonte() {
     pickOption(subEl,  '0000 - OUTRAS MEDIDAS');
     if (is0500) {
       pickOption(grupoSelect, ['3 - Despesa Corrente','3 - Despesas Correntes','3 -']);
-      pickOption(fichaEl, 'G3 - Apoio Especializado');
     } else if (is0754) {
       pickOption(grupoSelect, ['4 - Investimentos','4 -']);
-      pickOption(fichaEl, 'G4 - Operações de Crédito');
     }
+    // FICHA LIVRE
+    if (fichaEl) fichaEl.value = '';
     autoLock = false;
     return;
   }
@@ -453,14 +446,14 @@ function aplicarRegraFonte() {
     if (gNorm.startsWith('3 - despesa') || gNorm.startsWith('3 - despesas')) {
       pickOption(acaoEl, ['2904 - Formulação e Promoção da Política de Regularização Fundiária','2904']);
       pickOption(subEl,  ['0000 - OUTRAS MEDIDAS','0000']);
-      pickOption(fichaEl,['G3 - Outros','Outros']);
+      if (fichaEl) fichaEl.value = '';
       return;
     }
 
     if (gNorm.startsWith('4 - investimento')) {
       pickOption(acaoEl, ['2904 - Formulação e Promoção da Política de Regularização Fundiária','2904']);
       pickOption(subEl,  ['2793 - Regularização Fundiária e Oferta de Lotes Urbanos com Interesse Social','2793']);
-      pickOption(fichaEl,['G4 - Outros','Outros']);
+      if (fichaEl) fichaEl.value = '';
       return;
     }
   }
