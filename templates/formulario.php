@@ -277,6 +277,7 @@
           <select id="ficha_financeira" name="ficha_financeira" class="input" required>
             <option value="">Selecione...</option>
             <option>G3 - Água e Esgoto</option>
+            <option>G3 - Apoio Administrativo</option>
             <option>G3 - Apoio Administrativo - Estagiários</option>
             <option>G3 - Auxílio Funeral</option>
             <option>G3 - Auxílio Moradia</option>
@@ -300,7 +301,7 @@
             <option>G4 - Outros</option>
             <option>G3 - Outros</option>
             <option>G1 - Pessoal e Encargos Sociais</option>
-            <option>G3 - Publicação Oficiais</option>
+            <option>G3 - Publicações Oficiais</option>
             <option>G4 - Recursos do Concedente</option>
             <option>G3 - Rede Digital Corporativa do Estado</option>
             <option>G1 - Ressarcimento Pessoal à Disposição</option>
@@ -381,7 +382,11 @@
   </main>
 
   <script src="../js/condicionais_poa.js" defer></script>
-  <script src="../js/formulario.js" defer></script>
+  <?php
+    $jsPath = __DIR__ . '/../js/formulario.js'; // ajuste se necessário
+    $v = file_exists($jsPath) ? filemtime($jsPath) : time();
+  ?>
+  <script src="../js/formulario.js?v=<?= $v ?>" defer></script>
 
 </body>
 </html>
