@@ -1,13 +1,12 @@
-// js/formulario.js (com Tema 21 - Outros + filtros dinâmicos)
+
 document.addEventListener('DOMContentLoaded', () => {
-  // ====== utilidades de moeda ======
+
   const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
   const parseMoeda = v => (v || '').replace(/[^0-9]/g, '') / 100 || 0;
 
   function somar() {
     let total = 0;
 
-    // soma apenas os campos da Tabela de Meses
     document.querySelectorAll('.moeda-mes').forEach(i => {
       total += parseMoeda(i.value);
     });
@@ -22,9 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 document.querySelectorAll('.moeda-mes').forEach(i => i.addEventListener('input', formatar));
-// e também no Valor Total do Contrato
 document.querySelectorAll('.moeda-total').forEach(i => i.addEventListener('input', formatar));
-
 
   function flashSelect(el) {
     if (!el) return;
@@ -37,7 +34,6 @@ document.querySelectorAll('.moeda-total').forEach(i => i.addEventListener('input
     }, 1200);
   }
 
-  // ====== helpers ======
   const norm = s => (s || '')
     .toString()
     .normalize('NFD')
@@ -65,8 +61,7 @@ document.querySelectorAll('.moeda-total').forEach(i => i.addEventListener('input
     return false;
   }
 
-  // ==== snapshot/restauração de opções (para filtro dinâmico) ====
-  const originals = new Map(); // selectEl -> [{text, value, disabled}]
+  const originals = new Map();
   function snapshotOptions(selectEl) {
     if (!selectEl || originals.has(selectEl)) return;
     originals.set(selectEl, Array.from(selectEl.options).map(o => ({

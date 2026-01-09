@@ -19,11 +19,51 @@ if ($id <= 0) {
 }
 
 function parse_brl($str) {
-  if ($str === null || $str === '') return 0.0;
-  $str = preg_replace('/[^\d,.-]/', '', $str);
-  $str = str_replace('.', '', $str);
-  $str = str_replace(',', '.', $str);
-  return (float)$str;
+  if ($str === null) return 0.0;
+
+  $str = trim((string)$str);
+  if ($str === '') return 0.0;
+
+  // deixa só dígitos, ponto, vírgula e sinal
+  $str = preg_replace('/[^\d\.,-]/', '', $str);
+  if ($str === '' || $str === '-' || $str === '.' || $str === ',') return 0.0;
+
+  $neg = false;
+  if (strpos($str, '-') !== false) {
+    $neg = true;
+    $str = str_replace('-', '', $str);
+  }
+
+  $lastComma = strrpos($str, ',');
+  $lastDot   = strrpos($str, '.');
+
+  // define o separador decimal como o ÚLTIMO que aparecer
+  $decSep = null;
+  if ($lastComma !== false && $lastDot !== false) {
+    $decSep = ($lastComma > $lastDot) ? ',' : '.';
+  } elseif ($lastComma !== false) {
+    $decSep = ',';
+  } elseif ($lastDot !== false) {
+    $decSep = '.';
+  }
+
+  if ($decSep !== null) {
+    $parts = explode($decSep, $str);
+    $dec   = preg_replace('/\D/', '', array_pop($parts)); // só dígitos
+    $int   = preg_replace('/\D/', '', implode('', $parts));
+
+    $dec = substr($dec, 0, 2);
+    $dec = str_pad($dec, 2, '0');
+
+    $num = ($int === '' ? '0' : $int) . '.' . $dec;
+  } else {
+    // sem separador decimal → só inteiro
+    $num = preg_replace('/\D/', '', $str);
+    if ($num === '') $num = '0';
+  }
+
+  $val = (float)$num;
+  return $neg ? -$val : $val;
 }
 
 function bool_from_label($v) {
@@ -42,8 +82,8 @@ function parse_vigencia($str) {
   $parts = explode('-', $str);
   if (count($parts) !== 2) return [null, null];
 
-  $ini = trim($parts[0]); 
-  $fim = trim($parts[1]); 
+  $ini = trim($parts[0]);
+  $fim = trim($parts[1]);
 
   $vigIni = null;
   $vigFim = null;
@@ -52,7 +92,6 @@ function parse_vigencia($str) {
     $vigIni = $m[2] . '-' . $m[1] . '-01';
   }
   if (preg_match('#^(\d{2})/(\d{4})$#', $fim, $m)) {
-    // último dia do mês
     $d = new DateTime($m[2] . '-' . $m[1] . '-01');
     $d->modify('last day of this month');
     $vigFim = $d->format('Y-m-d');
@@ -84,15 +123,23 @@ $mesesPost        = $_POST['mes']              ?? [];
 
 list($vigencia_inicio, $vigencia_fim) = parse_vigencia($vigencia_str);
 
-$dea        = bool_from_label($dea_label);
-$reajuste   = bool_from_label($reajuste_label);
+$dea         = bool_from_label($dea_label);
+$reajuste    = bool_from_label($reajuste_label);
 $prorrogavel = bool_from_label($prorrogavel_lbl);
 
 $valor_total = parse_brl($valor_total_str);
+$valor_total_db = number_format($valor_total, 2, '.', '');
+
+// ✅ validação do limite do DECIMAL(15,2) — AGORA no lugar certo
+if ($valor_total > 999999999999999.99) {
+  die('Valor total excede o limite permitido.');
+}
 
 $mesVals = [];
+$mesValsDb = [];
 for ($i = 0; $i < 12; $i++) {
-  $mesVals[$i] = isset($mesesPost[$i]) ? parse_brl($mesesPost[$i]) : 0.0;
+  $v = isset($mesesPost[$i]) ? parse_brl($mesesPost[$i]) : 0.0;
+  $mesValsDb[$i] = number_format($v, 2, '.', '');
 }
 
 $sql = "
@@ -156,21 +203,29 @@ $add('s', $numero_contrato);
 $add('s', $credor);
 $add('s', $vigencia_inicio);
 $add('s', $vigencia_fim);
-$add('i', $dea);
-$add('i', $reajuste);
+
+// se quiser permitir NULL no banco, veja observação abaixo
+$add('i', $dea ?? 0);
+$add('i', $reajuste ?? 0);
+
 $add('s', $fonte);
 $add('s', $grupo);
 $add('s', $sei);
-$add('d', $valor_total);
+
+// DECIMAL como string
+$add('s', $valor_total_db);
+
 $add('s', $acao);
 $add('s', $subacao);
 $add('s', $ficha_financeira);
 $add('s', $macro_tema);
 $add('s', $priorizacao);
-$add('i', $prorrogavel);
 
-foreach ($mesVals as $v) {
-  $add('d', $v);
+$add('i', $prorrogavel ?? 0);
+
+// meses (na ordem do SQL)
+foreach ($mesValsDb as $v) {
+  $add('s', $v);
 }
 
 $add('i', $id);

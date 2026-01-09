@@ -32,12 +32,34 @@ $nomeUsuario = $_SESSION['usuario']['nome'] ?? 'usuário';
 function h($v) { return htmlspecialchars((string)$v, ENT_QUOTES, 'UTF-8'); }
 
 function brl_input($v) {
-  if ($v === null) return '';
-  return 'R$ ' . number_format((float)$v, 2, ',', '.');
+  if ($v === null || $v === '') return 'R$ 0,00';
+  $num = brl_to_float($v);
+  return 'R$ ' . number_format($num, 2, ',', '.');
 }
 
 function selected_val($atual, $opcao) {
   return (trim((string)$atual) === trim((string)$opcao)) ? 'selected' : '';
+}
+
+function brl_to_float($v) {
+  if ($v === null) return 0.0;
+
+  $v = trim((string)$v);
+  if ($v === '') return 0.0;
+
+  // remove R$, espaços e deixa só dígitos, ponto, vírgula e sinal
+  $v = str_replace(['R$', ' '], '', $v);
+  $v = preg_replace('/[^\d\.,-]/', '', $v);
+
+  // Se tem vírgula, assume pt-BR (1.234,56)
+  if (strpos($v, ',') !== false) {
+    $v = str_replace('.', '', $v);   // remove milhar
+    $v = str_replace(',', '.', $v);  // vírgula vira decimal
+    return (float)$v;
+  }
+
+  // Se NÃO tem vírgula, assume formato do banco (1234.56) ou número simples
+  return (float)$v;
 }
 
 function selected_bool($tiny, $label) {
@@ -62,6 +84,12 @@ if (!empty($contrato['vigencia_inicio']) && !empty($contrato['vigencia_fim'])) {
 // mapeamento meses
 $mesLabels = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
 $mesCampos = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+
+$totalMeses = 0.0;
+foreach ($mesCampos as $c) {
+  $totalMeses += brl_to_float($contrato[$c] ?? 0);
+}
+
 ?>
 
 <!doctype html>
@@ -186,14 +214,18 @@ $mesCampos = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agos
         <div class="md:col-span-4">
           <label class="label" for="setor">Setor Responsável *</label>
           <select id="setor" name="setor" class="input select" required>
-            <option value="">Selecione um setor</option>
-            <option <?= selected_val($contrato['setor'],'DAF') ?>>DAF</option>
-            <option <?= selected_val($contrato['setor'],'DOB') ?>>DOB</option>
-            <option <?= selected_val($contrato['setor'],'DOE') ?>>DOE</option>
-            <option <?= selected_val($contrato['setor'],'SPO') ?>>SPO</option>
-            <option <?= selected_val($contrato['setor'],'DP (PESSOAL)') ?>>DP (PESSOAL)</option>
-            <option <?= selected_val($contrato['setor'],'DPH') ?>>DPH</option>
-            <option <?= selected_val($contrato['setor'],'SAJ') ?>>SAJ</option>
+          <option value="">Selecione um setor</option>
+
+            <option value="DAF" <?= selected_val($contrato['setor'], 'DAF') ?>>DAF</option>
+            <option value="DOHDU" <?= selected_val($contrato['setor'], 'DOHDU') ?>>DOHDU</option>
+            <option value="DED" <?= selected_val($contrato['setor'], 'DED') ?>>DED</option>
+            <option value="DIF" <?= selected_val($contrato['setor'], 'DIF') ?>>DIF</option>
+            <option value="DSU" <?= selected_val($contrato['setor'], 'DSU') ?>>DSU</option>
+            <option value="DSG" <?= selected_val($contrato['setor'], 'DSG') ?>>DSG</option>
+            <option value="SPO" <?= selected_val($contrato['setor'], 'SPO') ?>>SPO</option>
+            <option value="DP (PESSOAL)" <?= selected_val($contrato['setor'], 'DP (PESSOAL)') ?>>DP (PESSOAL)</option>
+            <option value="DPH" <?= selected_val($contrato['setor'], 'DPH') ?>>DPH</option>
+            <option value="SAJ" <?= selected_val($contrato['setor'], 'SAJ') ?>>SAJ</option>
           </select>
         </div>
         <div class="md:col-span-4">
@@ -282,9 +314,12 @@ $mesCampos = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agos
 
         <!-- L4: Valor do Contrato | Ação | Subação -->
         <div class="md:col-span-4">
-          <label class="label" for="valor_total">Valor Total do Contrato *</label>
-          <input id="valor_total" name="valor_total" class="input moeda" placeholder="R$ 0,00" inputmode="numeric" value="<?= brl_input($contrato['valor_total']) ?>">
-        </div>
+  <label class="label" for="valor_total">Valor Total do Contrato *</label>
+  <input id="valor_total" name="valor_total"
+         class="input moeda moeda-total"
+         placeholder="R$ 0,00" inputmode="numeric"
+         value="<?= brl_input($contrato['valor_total']) ?>">
+      </div>
         <div class="md:col-span-4">
           <label class="label" for="acao">Ação</label>
           <select id="acao" name="acao" class="input select">
@@ -449,17 +484,17 @@ $mesCampos = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agos
             <div class="space-y-1">
               <div class="label"><?= $lbl ?></div>
               <input type="text"
-                     inputmode="numeric"
-                     name="mes[<?= $i ?>]"
-                     class="input moeda"
-                     placeholder="R$ 0,00"
-                     value="<?= brl_input($contrato[$campo]) ?>">
+                inputmode="numeric"
+                name="mes[<?= $i ?>]"
+                class="input moeda moeda-mes"
+                placeholder="R$ 0,00"
+                value="<?= brl_input($contrato[$campo]) ?>">
             </div>
           <?php endforeach; ?>
         </div>
         <div class="mt-3 rounded-xl bg-sky-50 border border-sky-100 px-4 py-3 flex items-center justify-between">
           <span class="text-sm text-slate-700 font-medium">Total:</span>
-          <strong class="text-slate-900" id="totalMeses">R$ 0,00</strong>
+          <strong class="text-slate-900" id="totalMeses"><?= brl_input($totalMeses) ?></strong>
         </div>
       </section>
 
@@ -470,7 +505,6 @@ $mesCampos = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agos
     </form>
   </main>
 
-  <script src="../js/condicionais_poa.js" defer></script>
   <script src="../js/formulario.js" defer></script>
 </body>
 </html>
