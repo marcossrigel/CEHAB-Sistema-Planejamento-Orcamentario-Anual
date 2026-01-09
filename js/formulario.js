@@ -1,13 +1,11 @@
-
 document.addEventListener('DOMContentLoaded', () => {
-
+  // ===================== MOEDA (meses + total) =====================
   const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-  const parseMoeda = v => (v || '').replace(/[^0-9]/g, '') / 100 || 0;
+  const parseMoeda = (v) => (v || '').replace(/[^0-9]/g, '') / 100 || 0;
 
   function somar() {
     let total = 0;
-
-    document.querySelectorAll('.moeda-mes').forEach(i => {
+    document.querySelectorAll('.moeda-mes').forEach((i) => {
       total += parseMoeda(i.value);
     });
 
@@ -20,39 +18,45 @@ document.addEventListener('DOMContentLoaded', () => {
     somar();
   }
 
-document.querySelectorAll('.moeda-mes').forEach(i => i.addEventListener('input', formatar));
-document.querySelectorAll('.moeda-total').forEach(i => i.addEventListener('input', formatar));
+  document.querySelectorAll('.moeda-mes').forEach((i) => i.addEventListener('input', formatar));
+  document.querySelectorAll('.moeda-total').forEach((i) => i.addEventListener('input', formatar));
 
+  // ===================== UTIL =====================
   function flashSelect(el) {
     if (!el) return;
-    el.classList.add('ring-2','ring-sky-400','bg-sky-50','transition-colors','duration-700');
+    el.classList.add('ring-2', 'ring-sky-400', 'bg-sky-50', 'transition-colors', 'duration-700');
     const label = document.querySelector(`label[for="${el.id}"]`);
     if (label) label.classList.add('text-sky-700');
     setTimeout(() => {
-      el.classList.remove('ring-2','ring-sky-400','bg-sky-50');
+      el.classList.remove('ring-2', 'ring-sky-400', 'bg-sky-50');
       if (label) label.classList.remove('text-sky-700');
     }, 1200);
   }
 
-  const norm = s => (s || '')
-    .toString()
-    .normalize('NFD')
-    .replace(/\p{Diacritic}/gu, '')
-    .toLowerCase()
-    .trim();
+  const norm = (s) =>
+    (s || '')
+      .toString()
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '')
+      .toLowerCase()
+      .trim();
 
   function pickOption(selectEl, queries) {
     if (!selectEl) return false;
     const prev = selectEl.value;
     const opts = Array.from(selectEl.options);
+
     for (const q of (Array.isArray(queries) ? queries : [queries])) {
       const qn = norm(q);
-      let found = opts.find(o => norm(o.text) === qn)
-             ||    opts.find(o => norm(o.text).startsWith(qn))
-             ||    opts.find(o => norm(o.text).includes(qn));
+
+      const found =
+        opts.find((o) => norm(o.text) === qn) ||
+        opts.find((o) => norm(o.text).startsWith(qn)) ||
+        opts.find((o) => norm(o.text).includes(qn));
+
       if (found) {
         selectEl.value = found.text; // seus <option> usam o próprio texto como value
-        const changed = (selectEl.value !== prev);
+        const changed = selectEl.value !== prev;
         selectEl.dispatchEvent(new Event('change', { bubbles: true }));
         if (changed) flashSelect(selectEl);
         return true;
@@ -61,45 +65,56 @@ document.querySelectorAll('.moeda-total').forEach(i => i.addEventListener('input
     return false;
   }
 
+  // ===================== SNAPSHOT / FILTRO DE OPTIONS =====================
   const originals = new Map();
+
   function snapshotOptions(selectEl) {
     if (!selectEl || originals.has(selectEl)) return;
-    originals.set(selectEl, Array.from(selectEl.options).map(o => ({
-      text: o.text, value: o.value, disabled: o.disabled
-    })));
+    originals.set(
+      selectEl,
+      Array.from(selectEl.options).map((o) => ({
+        text: o.text,
+        value: o.value,
+        disabled: o.disabled,
+      }))
+    );
   }
+
   function restoreOptions(selectEl) {
     if (!selectEl) return;
     const snap = originals.get(selectEl);
     if (!snap) return;
+
     const current = selectEl.value;
     selectEl.innerHTML = '';
+
     for (const o of snap) {
       const opt = new Option(o.text, o.value);
       opt.disabled = !!o.disabled;
       selectEl.add(opt);
     }
-    // tenta manter seleção anterior, se existir
-    const had = Array.from(selectEl.options).find(o => o.text === current);
+
+    const had = Array.from(selectEl.options).find((o) => o.text === current);
     selectEl.value = had ? current : '';
   }
+
   function setAllowedOptions(selectEl, allowedTexts) {
-    // mantém "Selecione..." se houver
     if (!selectEl) return;
+
     snapshotOptions(selectEl);
+
     const snap = originals.get(selectEl) || [];
-    const allowedNorm = new Set(allowedTexts.map(t => norm(t)));
+    const allowedNorm = new Set(allowedTexts.map((t) => norm(t)));
 
     const kept = [];
-    // mantém primeira opção (Selecione...) se existir
-    if (snap.length && norm(snap[0].text).includes('selecione')) {
-      kept.push(snap[0]);
-    }
-    for (let i = 0; i < snap.length; i++) {
-      const o = snap[i];
+
+    if (snap.length && norm(snap[0].text).includes('selecione')) kept.push(snap[0]);
+
+    for (const o of snap) {
       if (norm(o.text).includes('selecione')) continue;
       if (allowedNorm.has(norm(o.text))) kept.push(o);
     }
+
     selectEl.innerHTML = '';
     for (const o of kept) {
       const opt = new Option(o.text, o.value);
@@ -109,118 +124,105 @@ document.querySelectorAll('.moeda-total').forEach(i => i.addEventListener('input
     selectEl.value = '';
   }
 
-  const temaSelect   = document.getElementById('tema_custo');
-  const grupoSelect  = document.getElementById('grupo');
-  const fonteEl      = document.getElementById('fonte');
-  const acaoEl       = document.getElementById('acao');
-  const subEl        = document.getElementById('subacao');
-  const fichaEl      = document.getElementById('ficha_financeira');
+  // ===================== ELEMENTOS =====================
+  const temaSelect = document.getElementById('tema_custo');
+  const grupoSelect = document.getElementById('grupo');
+  const fonteEl = document.getElementById('fonte');
+  const acaoEl = document.getElementById('acao');
+  const subEl = document.getElementById('subacao');
+  const fichaEl = document.getElementById('ficha_financeira');
 
-    // campos que podem ser travados pelo Tema de Custo
   const camposAuto = [fonteEl, grupoSelect, acaoEl, subEl, fichaEl];
 
   function setCamposDisabled(disabled) {
-  camposAuto.forEach(el => {
-    if (!el) return;
+    camposAuto.forEach((el) => {
+      if (!el) return;
 
-    if (!disabled) {
-      // Libera geral
-      el.disabled = false;
-      el.classList.remove('bg-slate-100', 'cursor-not-allowed');
-      return;
-    }
+      if (!disabled) {
+        el.disabled = false;
+        el.classList.remove('bg-slate-100', 'cursor-not-allowed');
+        return;
+      }
 
-    // Quando for travar, só trava se já tiver um valor escolhido
-    const opt  = el.options[el.selectedIndex] || null;
-    const text = opt ? opt.text || '' : '';
-    const semEscolha = !el.value || norm(text).includes('selecione');
+      const opt = el.options[el.selectedIndex] || null;
+      const text = opt ? opt.text || '' : '';
+      const semEscolha = !el.value || norm(text).includes('selecione');
 
-    if (semEscolha) {
-      // Continua editável se estiver em "Selecione..."
-      el.disabled = false;
-      el.classList.remove('bg-slate-100', 'cursor-not-allowed');
-    } else {
-      // Já tem valor auto-preenchido → trava
-      el.disabled = true;
-      el.classList.add('bg-slate-100', 'cursor-not-allowed');
-    }
+      if (semEscolha) {
+        el.disabled = false;
+        el.classList.remove('bg-slate-100', 'cursor-not-allowed');
+      } else {
+        el.disabled = true;
+        el.classList.add('bg-slate-100', 'cursor-not-allowed');
+      }
+    });
+  }
+
+  // Libera disabled no submit (pra enviar pro PHP)
+  const form = document.getElementById('formContrato');
+  form?.addEventListener('submit', () => {
+    form
+      .querySelectorAll('select:disabled, input:disabled, textarea:disabled')
+      .forEach((el) => (el.disabled = false));
   });
-}
 
-
-
-  // snapshot inicial dos selects que serão filtrados
-  [fonteEl, grupoSelect, acaoEl].forEach(snapshotOptions);
+  // snapshot inicial (inclui fichaEl também)
+  [fonteEl, grupoSelect, acaoEl, fichaEl].forEach(snapshotOptions);
 
   let autoLock = false;
-  const getTemaCodigo = () =>
-    ((temaSelect?.value || '').split(' - ')[0] || '').trim();
+  const getTemaCodigo = () => ((temaSelect?.value || '').split(' - ')[0] || '').trim();
 
   // ===================== REGRAS POR TEMA =====================
-function aplicarRegraTema() {
-  if (!temaSelect) return;
-  const temaCodigo = getTemaCodigo();
+  function aplicarRegraTema() {
+    if (!temaSelect) return;
+    const temaCodigo = getTemaCodigo();
 
-  // Sempre começa liberando tudo e restaurando as opções
-  restoreOptions(fonteEl);
-  restoreOptions(grupoSelect);
-  restoreOptions(acaoEl);
-  restoreOptions(fichaEl);
-  setCamposDisabled(false);
-  if (subEl) {
-    subEl.disabled = false;
-    subEl.value = '';
-  }
+    restoreOptions(fonteEl);
+    restoreOptions(grupoSelect);
+    restoreOptions(acaoEl);
+    restoreOptions(fichaEl);
 
-  // ================== NENHUM TEMA SELECIONADO ==================
-  if (!temaCodigo) {
-    return;
-  }
+    setCamposDisabled(false);
 
-  // ================== TEMA 21 - OUTROS (livre, mas filtrado) ==================
-  if (temaCodigo === '21') {
-    autoLock = true;
+    if (subEl) {
+      subEl.disabled = false;
+      subEl.value = '';
+    }
 
-    // Filtrar FONTES: 0500 ou 0754
-    setAllowedOptions(fonteEl, [
-      '0500 - (Tesouro do Estado)',
-      '0500 - Tesouro do Estado',
-      '0754 - (Operação de Crédito)',
-      '0754 - Operações de Crédito',
-      '0754 - Operação de Crédito'
-    ]);
+    if (!temaCodigo) return;
 
-    // Filtrar GRUPOS: 3 ou 4
-    setAllowedOptions(grupoSelect, [
-      '3 - Despesa Corrente',
-      '3 - Despesas Correntes',
-      '4 - Investimentos'
-    ]);
+    // ================== TEMA 21 - OUTROS (livre, mas filtrado) ==================
+    if (temaCodigo === '21') {
+      autoLock = true;
 
-    // Ações permitidas
-    setAllowedOptions(acaoEl, [
-      '4300 - Execução de Obras de Infraestrutura e de Urbanização',
-      '4301 - Pesquisa e Assessoria Técnica para Habitação de Interesse Social',
-      '4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB'
-    ]);
+      setAllowedOptions(fonteEl, [
+        '0500 - (Tesouro do Estado)',
+        '0500 - Tesouro do Estado',
+        '0754 - (Operação de Crédito)',
+        '0754 - Operações de Crédito',
+        '0754 - Operação de Crédito',
+      ]);
 
-    // Ficha Financeira: só G3/G4 Outros
-    setAllowedOptions(fichaEl, [
-      'G3 - Outros',
-      'G4 - Outros'
-    ]);
+      setAllowedOptions(grupoSelect, ['3 - Despesa Corrente', '3 - Despesas Correntes', '4 - Investimentos']);
 
-    // limpar seleção para o usuário escolher
-    if (subEl) subEl.value = '';
-    if (fichaEl) fichaEl.value = '';
+      setAllowedOptions(acaoEl, [
+        '4300 - Execução de Obras de Infraestrutura e de Urbanização',
+        '4301 - Pesquisa e Assessoria Técnica para Habitação de Interesse Social',
+        '4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB',
+      ]);
 
-    autoLock = false;       // Tema 21 FICA LIVRE, não chama setCamposDisabled aqui
+      setAllowedOptions(fichaEl, ['G3 - Outros', 'G4 - Outros']);
 
-    flashSelect(fonteEl);
-    flashSelect(grupoSelect);
-    flashSelect(acaoEl);
-    return;
-  }
+      if (subEl) subEl.value = '';
+      if (fichaEl) fichaEl.value = '';
+
+      autoLock = false;
+
+      flashSelect(fonteEl);
+      flashSelect(grupoSelect);
+      flashSelect(acaoEl);
+      return;
+    }
 
   // ======== Regras já existentes (mantidas) ========
   const THEME_RULES = {
@@ -461,12 +463,10 @@ function aplicarRegraFonte() {
   }
 
   // ===================== listeners =====================
-  if (temaSelect)  temaSelect.addEventListener('change', () => {
-    aplicarRegraTema();
-    // Ao mudar o tema, se for 21, também escutamos mudança de Ação
-    if (getTemaCodigo() === '21') aplicarRegraAcaoTema21();
-  });
-
+ if (temaSelect)
+    temaSelect.addEventListener('change', () => {
+      aplicarRegraTema();
+    });
   if (grupoSelect) grupoSelect.addEventListener('change', aplicarRegraGrupo);
   if (fonteEl)     fonteEl.addEventListener('change', aplicarRegraFonte);
   if (acaoEl)      acaoEl.addEventListener('change', aplicarRegraAcaoTema21);

@@ -172,6 +172,10 @@ function brl_val($v) {
   return 'R$ ' . number_format((float)$v, 2, ',', '.');
 }
 
+function h($v) {
+  return htmlspecialchars((string)($v ?? ''), ENT_QUOTES, 'UTF-8');
+}
+
 // campos numéricos dos meses (para somar o total de cada contrato)
 $MES_CAMPOS = [
   'janeiro','fevereiro','marco','abril','maio','junho',
@@ -397,7 +401,7 @@ function nome_curto($nomeCompleto) {
                       <?= bool_ptbr_view($c['reajuste']) ?>
                     </td>
                     <td class="px-3 py-2 whitespace-nowrap">
-                      <?= htmlspecialchars($c['ficha_financeira']) ?>
+                      <?= h($c['ficha_financeira']) ?>
                     </td>
                     <td class="px-3 py-2 whitespace-nowrap">
                       <?= htmlspecialchars($c['priorizacao']) ?>

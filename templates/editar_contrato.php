@@ -214,19 +214,20 @@ foreach ($mesCampos as $c) {
         <div class="md:col-span-4">
           <label class="label" for="setor">Setor Responsável *</label>
           <select id="setor" name="setor" class="input select" required>
-          <option value="">Selecione um setor</option>
+            <option value="">Selecione um setor</option>
 
-            <option value="DAF" <?= selected_val($contrato['setor'], 'DAF') ?>>DAF</option>
-            <option value="DOHDU" <?= selected_val($contrato['setor'], 'DOHDU') ?>>DOHDU</option>
-            <option value="DED" <?= selected_val($contrato['setor'], 'DED') ?>>DED</option>
-            <option value="DIF" <?= selected_val($contrato['setor'], 'DIF') ?>>DIF</option>
-            <option value="DSU" <?= selected_val($contrato['setor'], 'DSU') ?>>DSU</option>
-            <option value="DSG" <?= selected_val($contrato['setor'], 'DSG') ?>>DSG</option>
-            <option value="SPO" <?= selected_val($contrato['setor'], 'SPO') ?>>SPO</option>
-            <option value="DP (PESSOAL)" <?= selected_val($contrato['setor'], 'DP (PESSOAL)') ?>>DP (PESSOAL)</option>
-            <option value="DPH" <?= selected_val($contrato['setor'], 'DPH') ?>>DPH</option>
-            <option value="SAJ" <?= selected_val($contrato['setor'], 'SAJ') ?>>SAJ</option>
+            <option <?= selected_val($contrato['setor'],'DAF') ?>>DAF</option>
+            <option <?= selected_val($contrato['setor'],'DOHDU') ?>>DOHDU</option>
+            <option <?= selected_val($contrato['setor'],'DED') ?>>DED</option>
+            <option <?= selected_val($contrato['setor'],'DIF') ?>>DIF</option>
+            <option <?= selected_val($contrato['setor'],'DSU') ?>>DSU</option>
+            <option <?= selected_val($contrato['setor'],'DSG') ?>>DSG</option>
+            <option <?= selected_val($contrato['setor'],'SPO') ?>>SPO</option>
+            <option <?= selected_val($contrato['setor'],'DP (PESSOAL)') ?>>DP (PESSOAL)</option>
+            <option <?= selected_val($contrato['setor'],'DPH') ?>>DPH</option>
+            <option <?= selected_val($contrato['setor'],'SAJ') ?>>SAJ</option>
           </select>
+
         </div>
         <div class="md:col-span-4">
           <label class="label" for="gestor">Gestor Responsável</label>
