@@ -224,6 +224,35 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // ================== TEMA 26 - OBRAS (limitar AÇÃO) ==================
+    if (temaCodigo === '26') {
+      autoLock = true;
+
+      // Grupo = 4 - Investimentos
+      pickOption(grupoSelect, ['4 - Investimentos', '4 -']);
+
+      // Ficha = G4 - Obra  (tem que bater com o option do HTML)
+      pickOption(fichaEl, ['G4 - Obra', 'G4 -']);
+
+      // limita as opções do select AÇÃO
+      setAllowedOptions(acaoEl, [
+        '4300 - Execução de Obras de Infraestrutura e de Urbanização',
+        '4058 - Ampliação da Oferta e Requalificação de Habitação de Interesse Social',
+        'XXXX - Destaque',
+      ]);
+
+      // deixa o usuário escolher a ação (ou troque por pickOption(acaoEl, '4300 - ...') se quiser fixar)
+      if (acaoEl) acaoEl.value = '';
+
+      autoLock = false;
+
+      flashSelect(grupoSelect);
+      flashSelect(fichaEl);
+      flashSelect(acaoEl);
+
+      return;
+    }
+
   // ======== Regras já existentes (mantidas) ========
   const THEME_RULES = {
     '01': { acao:'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB', sub:'0000 - OUTRAS MEDIDAS', ficha:'G3 - Apoio Administrativo - Estagiários' },

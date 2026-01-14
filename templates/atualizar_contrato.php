@@ -1,63 +1,59 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
 if (session_status() !== PHP_SESSION_ACTIVE) session_start();
 
 if (!isset($_SESSION['usuario'])) {
   http_response_code(401);
-  echo "Sessão não iniciada. Acesse via login.";
-  exit;
+  exit("Sessão não iniciada. Acesse via login.");
 }
 
 require_once __DIR__ . '/../config.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-  die('Método inválido.');
+  http_response_code(405);
+  exit('Método inválido.');
+}
+
+if (!isset($poa) || !($poa instanceof mysqli)) {
+  http_response_code(500);
+  exit('Conexão com o banco ($poa) não foi inicializada. Verifique o config.php');
 }
 
 $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
-if ($id <= 0) {
-  die('ID de contrato inválido.');
-}
+if ($id <= 0) exit('ID de contrato inválido.');
 
 function parse_brl($str) {
   if ($str === null) return 0.0;
-
   $str = trim((string)$str);
   if ($str === '') return 0.0;
 
-  // deixa só dígitos, ponto, vírgula e sinal
   $str = preg_replace('/[^\d\.,-]/', '', $str);
   if ($str === '' || $str === '-' || $str === '.' || $str === ',') return 0.0;
 
   $neg = false;
-  if (strpos($str, '-') !== false) {
-    $neg = true;
-    $str = str_replace('-', '', $str);
-  }
+  if (strpos($str, '-') !== false) { $neg = true; $str = str_replace('-', '', $str); }
 
   $lastComma = strrpos($str, ',');
   $lastDot   = strrpos($str, '.');
 
-  // define o separador decimal como o ÚLTIMO que aparecer
   $decSep = null;
-  if ($lastComma !== false && $lastDot !== false) {
-    $decSep = ($lastComma > $lastDot) ? ',' : '.';
-  } elseif ($lastComma !== false) {
-    $decSep = ',';
-  } elseif ($lastDot !== false) {
-    $decSep = '.';
-  }
+  if ($lastComma !== false && $lastDot !== false) $decSep = ($lastComma > $lastDot) ? ',' : '.';
+  elseif ($lastComma !== false) $decSep = ',';
+  elseif ($lastDot !== false) $decSep = '.';
 
   if ($decSep !== null) {
     $parts = explode($decSep, $str);
-    $dec   = preg_replace('/\D/', '', array_pop($parts)); // só dígitos
+    $dec   = preg_replace('/\D/', '', array_pop($parts));
     $int   = preg_replace('/\D/', '', implode('', $parts));
 
     $dec = substr($dec, 0, 2);
     $dec = str_pad($dec, 2, '0');
-
     $num = ($int === '' ? '0' : $int) . '.' . $dec;
   } else {
-    // sem separador decimal → só inteiro
     $num = preg_replace('/\D/', '', $str);
     if ($num === '') $num = '0';
   }
@@ -75,67 +71,38 @@ function bool_from_label($v) {
   return null;
 }
 
-function parse_vigencia($str) {
-  $str = trim((string)$str);
-  if ($str === '') return [null, null];
-
-  $parts = explode('-', $str);
-  if (count($parts) !== 2) return [null, null];
-
-  $ini = trim($parts[0]);
-  $fim = trim($parts[1]);
-
-  $vigIni = null;
-  $vigFim = null;
-
-  if (preg_match('#^(\d{2})/(\d{4})$#', $ini, $m)) {
-    $vigIni = $m[2] . '-' . $m[1] . '-01';
-  }
-  if (preg_match('#^(\d{2})/(\d{4})$#', $fim, $m)) {
-    $d = new DateTime($m[2] . '-' . $m[1] . '-01');
-    $d->modify('last day of this month');
-    $vigFim = $d->format('Y-m-d');
-  }
-  return [$vigIni, $vigFim];
-}
-
-$tema_custo       = $_POST['tema_custo']       ?? '';
-$setor            = $_POST['setor']            ?? '';
-$gestor           = $_POST['gestor']           ?? '';
-$objeto           = $_POST['objeto']           ?? '';
-$status           = $_POST['status']           ?? '';
-$numero_contrato  = $_POST['numero_contrato']  ?? '';
-$credor           = $_POST['credor']           ?? '';
-$vigencia_str     = $_POST['vigencia']         ?? '';
-$dea_label        = $_POST['dea']              ?? '';
-$reajuste_label   = $_POST['reajuste']         ?? '';
-$fonte            = $_POST['fonte']            ?? '';
-$grupo            = $_POST['grupo']            ?? '';
-$sei              = $_POST['sei']              ?? '';
-$valor_total_str  = $_POST['valor_total']      ?? '';
-$acao             = $_POST['acao']             ?? '';
-$subacao          = $_POST['subacao']          ?? '';
-$ficha_financeira = $_POST['ficha_financeira'] ?? '';
-$macro_tema       = $_POST['macro_tema']       ?? '';
-$priorizacao      = $_POST['priorizacao']      ?? '';
-$prorrogavel_lbl  = $_POST['prorrogavel']      ?? '';
-$mesesPost        = $_POST['mes']              ?? [];
-
-list($vigencia_inicio, $vigencia_fim) = parse_vigencia($vigencia_str);
+// ------ inputs ------
+$tema_custo       = $_POST['tema_custo']        ?? '';
+$setor            = $_POST['setor']             ?? '';
+$gestor           = $_POST['gestor']            ?? '';
+$objeto           = $_POST['objeto']            ?? '';
+$status           = $_POST['status']            ?? '';
+$numero_contrato  = $_POST['numero_contrato']   ?? '';
+$credor           = $_POST['credor']            ?? '';
+$vigencia_fim_txt = trim((string)($_POST['vigencia'] ?? '')); // TEXTO LIVRE
+$dea_label        = $_POST['dea']               ?? '';
+$reajuste_label   = $_POST['reajuste']          ?? '';
+$fonte            = $_POST['fonte']             ?? '';
+$grupo            = $_POST['grupo']             ?? '';
+$sei              = $_POST['sei']               ?? '';
+$valor_total_str  = $_POST['valor_total_contrato'] ?? '0';    // vem do form
+$acao             = $_POST['acao']              ?? '';
+$subacao          = $_POST['subacao']           ?? '';
+$ficha_financeira = $_POST['ficha_financeira']  ?? '';
+$macro_tema       = $_POST['macro_tema']        ?? '';
+$priorizacao      = $_POST['priorizacao']       ?? '';
+$prorrogavel_lbl  = $_POST['prorrogavel']       ?? '';
+$observacoes      = $_POST['observacoes']       ?? '';
+$mesesPost        = $_POST['mes']               ?? [];
 
 $dea         = bool_from_label($dea_label);
 $reajuste    = bool_from_label($reajuste_label);
 $prorrogavel = bool_from_label($prorrogavel_lbl);
 
 $valor_total = parse_brl($valor_total_str);
+if ($valor_total > 999999999999999.99) exit('Valor total excede o limite permitido.');
 $valor_total_db = number_format($valor_total, 2, '.', '');
 
-// ✅ validação do limite do DECIMAL(15,2) — AGORA no lugar certo
-if ($valor_total > 999999999999999.99) {
-  die('Valor total excede o limite permitido.');
-}
-
-$mesVals = [];
 $mesValsDb = [];
 for ($i = 0; $i < 12; $i++) {
   $v = isset($mesesPost[$i]) ? parse_brl($mesesPost[$i]) : 0.0;
@@ -145,96 +112,82 @@ for ($i = 0; $i < 12; $i++) {
 $sql = "
   UPDATE novo_contrato
   SET
-    tema_custo      = ?,
-    setor           = ?,
-    gestor          = ?,
-    objeto          = ?,
-    status_contrato = ?,
-    numero_contrato = ?,
-    credor          = ?,
-    vigencia_inicio = ?,
-    vigencia_fim    = ?,
-    dea             = ?,
-    reajuste        = ?,
-    fonte           = ?,
-    grupo_despesa   = ?,
-    sei             = ?,
-    valor_total     = ?,
-    acao            = ?,
-    subacao         = ?,
-    ficha_financeira= ?,
-    macro_tema      = ?,
-    priorizacao     = ?,
-    prorrogavel     = ?,
-    janeiro         = ?,
-    fevereiro       = ?,
-    marco           = ?,
-    abril           = ?,
-    maio            = ?,
-    junho           = ?,
-    julho           = ?,
-    agosto          = ?,
-    setembro        = ?,
-    outubro         = ?,
-    novembro        = ?,
-    dezembro        = ?
+    tema_custo        = ?,
+    setor             = ?,
+    gestor            = ?,
+    objeto            = ?,
+    status_contrato   = ?,
+    numero_contrato   = ?,
+    credor            = ?,
+    vigencia_fim      = ?,
+    observacoes       = ?,
+    dea               = ?,
+    reajuste          = ?,
+    fonte             = ?,
+    grupo_despesa     = ?,
+    sei               = ?,
+    valor_total       = ?,
+    acao              = ?,
+    subacao           = ?,
+    ficha_financeira  = ?,
+    macro_tema        = ?,
+    priorizacao       = ?,
+    prorrogavel       = ?,
+    janeiro           = ?,
+    fevereiro         = ?,
+    marco             = ?,
+    abril             = ?,
+    maio              = ?,
+    junho             = ?,
+    julho             = ?,
+    agosto            = ?,
+    setembro          = ?,
+    outubro           = ?,
+    novembro          = ?,
+    dezembro          = ?
   WHERE id = ?
 ";
 
 $stmt = $poa->prepare($sql);
-if (!$stmt) {
-  die('Erro ao preparar UPDATE: ' . $poa->error);
-}
 
-$types  = '';
-$params = [];
+// 9 strings + 2 ints + 4 strings + 5 strings + 1 int + 12 strings + 1 int
+$types =
+  "sssssssss" .  // tema..observacoes (9)
+  "ii" .         // dea, reajuste
+  "ssss" .       // fonte, grupo, sei, valor_total
+  "sssss" .      // acao, subacao, ficha, macro, priorizacao
+  "i" .          // prorrogavel
+  "ssssssssssss" . // 12 meses
+  "i";           // id
 
-$add = function($type, $val) use (&$types, &$params) {
-  $types  .= $type;
-  $params[] = $val;
-};
-
-$add('s', $tema_custo);
-$add('s', $setor);
-$add('s', $gestor);
-$add('s', $objeto);
-$add('s', $status);
-$add('s', $numero_contrato);
-$add('s', $credor);
-$add('s', $vigencia_inicio);
-$add('s', $vigencia_fim);
-
-// se quiser permitir NULL no banco, veja observação abaixo
-$add('i', $dea ?? 0);
-$add('i', $reajuste ?? 0);
-
-$add('s', $fonte);
-$add('s', $grupo);
-$add('s', $sei);
-
-// DECIMAL como string
-$add('s', $valor_total_db);
-
-$add('s', $acao);
-$add('s', $subacao);
-$add('s', $ficha_financeira);
-$add('s', $macro_tema);
-$add('s', $priorizacao);
-
-$add('i', $prorrogavel ?? 0);
-
-// meses (na ordem do SQL)
-foreach ($mesValsDb as $v) {
-  $add('s', $v);
-}
-
-$add('i', $id);
+$params = [
+  $tema_custo,
+  $setor,
+  $gestor,
+  $objeto,
+  $status,
+  $numero_contrato,
+  $credor,
+  ($vigencia_fim_txt === '' ? null : $vigencia_fim_txt),
+  $observacoes,
+  ($dea === null ? 0 : $dea),
+  ($reajuste === null ? 0 : $reajuste),
+  $fonte,
+  $grupo,
+  $sei,
+  $valor_total_db,
+  $acao,
+  $subacao,
+  $ficha_financeira,
+  $macro_tema,
+  $priorizacao,
+  ($prorrogavel === null ? 0 : $prorrogavel),
+  ...$mesValsDb,
+  $id
+];
 
 $stmt->bind_param($types, ...$params);
+$stmt->execute();
 
-if (!$stmt->execute()) {
-  die('Erro ao atualizar contrato: ' . $stmt->error);
-}
-
-header("Location: editar_contrato.php?id=" . $id . "&ok=1");
+header("Location: editar_contrato.php?id={$id}&ok=1");
 exit;

@@ -8,8 +8,7 @@ if (!isset($_SESSION['usuario'])) {
   exit;
 }
 
-require_once __DIR__ . '/../config.php'; // precisa existir $poa (mysqli)
-
+require_once __DIR__ . '/../config.php';
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if ($id <= 0) {
   die('ID de contrato inválido.');
@@ -49,15 +48,9 @@ function selected_bool($tiny, $label) {
   return '';
 }
 
-// vigência "mm/aaaa - mm/aaaa"
-$vigenciaStr = '';
-if (!empty($contrato['vigencia_inicio']) && !empty($contrato['vigencia_fim'])) {
-  $ini = DateTime::createFromFormat('Y-m-d', $contrato['vigencia_inicio']);
-  $fim = DateTime::createFromFormat('Y-m-d', $contrato['vigencia_fim']);
-  if ($ini && $fim) {
-    $vigenciaStr = $ini->format('m/Y') . ' - ' . $fim->format('m/Y');
-  }
-}
+$vigenciaStr = $contrato['vigencia_fim'] ?? '';
+
+
 
 // mapeamento meses
 $mesLabels = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
@@ -209,8 +202,8 @@ foreach ($mesCampos as $campo) {
               </div>
 
               <div class="md:col-span-4">
-                <label class="label" for="vigencia">Vigência</label>
-                <input id="vigencia" name="vigencia" class="input" placeholder="mm/aaaa - mm/aaaa" value="<?= h($vigenciaStr) ?>">
+                <label class="label" for="vigencia">Vigência (data fim)</label>
+                <input id="vigencia" name="vigencia" class="input" placeholder="Digite como quiser (ex: 14/01/2026, 20/2026, 1401...)" value="<?= h($vigenciaStr) ?>">
               </div>
               <div class="md:col-span-4">
                 <label class="label" for="dea">DEA</label>

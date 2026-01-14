@@ -71,16 +71,7 @@ function selected_bool($tiny, $label) {
   return '';
 }
 
-// vigência "mm/aaaa - mm/aaaa"
-$vigenciaStr = '';
-if (!empty($contrato['vigencia_inicio']) && !empty($contrato['vigencia_fim'])) {
-  $ini = DateTime::createFromFormat('Y-m-d', $contrato['vigencia_inicio']);
-  $fim = DateTime::createFromFormat('Y-m-d', $contrato['vigencia_fim']);
-  if ($ini && $fim) {
-    $vigenciaStr = $ini->format('m/Y') . ' - ' . $fim->format('m/Y');
-  }
-}
-
+$vigenciaStr = $contrato['vigencia_fim'] ?? '';
 // mapeamento meses
 $mesLabels = ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
 $mesCampos = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
@@ -265,7 +256,9 @@ foreach ($mesCampos as $c) {
 
             <div class="md:col-span-4">
               <label class="label" for="vigencia">Vigência</label>
-              <input id="vigencia" name="vigencia" class="input" placeholder="mm/aaaa - mm/aaaa" value="<?= h($vigenciaStr) ?>">
+              <input id="vigencia" name="vigencia" class="input"
+                placeholder="Ex: 20/2026 ou 14/01/2026 ou 1401"
+                value="<?= h($vigenciaStr) ?>">
             </div>
             <div class="md:col-span-4">
               <label class="label" for="dea">DEA</label>
@@ -360,6 +353,9 @@ foreach ($mesCampos as $c) {
             <option <?= selected_val($contrato['subacao'],'2885 - Reforma no Lar - PROGRAMA MORAR BEM PE') ?>>2885 - Reforma no Lar - PROGRAMA MORAR BEM PE</option>
             <option <?= selected_val($contrato['subacao'],'3242 - Execução das obras de pavimentação, drenagem e sinalização da estrada Lygia Gomes da Silva - Ouro Preto') ?>>3242 - Execução das obras de pavimentação, drenagem e sinalização da estrada Lygia Gomes da Silva - Ouro Preto</option>
             <option <?= selected_val($contrato['subacao'],'3325 - Obras não incidentes - FAR e FDS') ?>>3325 - Obras não incidentes - FAR e FDS</option>
+            <option <?= selected_val($contrato['subacao'],'3324 - Execução das obras de pavimentação') ?>>3324 - Execução das obras de pavimentação</option>
+            <option <?= selected_val($contrato['subacao'],'3385 - Construção de obra de arte especial - PONTE, sobre o Rio Una (VPE-147, trecho: Barra do Jardim Altinho/PE)') ?>>3385 - Construção de obra de arte especial - PONTE, sobre o Rio Una (VPE-147, trecho: Barra do Jardim Altinho/PE)</option>
+            <option <?= selected_val($contrato['subacao'],'3613 - Execução de obras de infraestrutura e construção de unidades habitacionais na av. Cruz Cabugá (Santo Amaro Recife)') ?>>3613 - Execução de obras de infraestrutura e construção de unidades habitacionais na av. Cruz Cabugá (Santo Amaro Recife)</option>            
             <option <?= selected_val($contrato['subacao'],'3352 - Programa Morar Bem - Construção de Unidades Habitacionais') ?>>3352 - Programa Morar Bem - Construção de Unidades Habitacionais</option>
             <option <?= selected_val($contrato['subacao'],'A386 - Execução de obras de infraestrutura e construção de unidades habitacionais na Bacia do Fregoso II') ?>>A386 - Execução de obras de infraestrutura e construção de unidades habitacionais na Bacia do Fregoso II</option>
             <option <?= selected_val($contrato['subacao'],'A389 - Execução de obras de infraestrutura e construção de unidades habitacionais no Canal do Jordão') ?>>A389 - Execução de obras de infraestrutura e construção de unidades habitacionais no Canal do Jordão</option>

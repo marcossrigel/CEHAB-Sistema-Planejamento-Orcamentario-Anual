@@ -15,30 +15,15 @@ function brl_to_decimal(?string $str): float {
   return is_numeric($str) ? (float)$str : 0.0;
 }
 
-function parse_vigencia(?string $vigencia): array {
-  $vigencia = trim((string)$vigencia);
-  $parts = preg_split('/\s*-\s*/', $vigencia);
-  $ini = $fim = null;
-
-  if (!empty($parts[0]) && preg_match('~^(\d{2})/(\d{4})$~', trim($parts[0]), $m1)) {
-    [$all,$mm,$yyyy] = $m1;
-    $ini = sprintf('%04d-%02d-01', (int)$yyyy, (int)$mm);
-  }
-  if (!empty($parts[1]) && preg_match('~^(\d{2})/(\d{4})$~', trim($parts[1]), $m2)) {
-    [$all,$mm,$yyyy] = $m2;
-    $dt  = DateTime::createFromFormat('Y-m-d', sprintf('%04d-%02d-01', (int)$yyyy, (int)$mm));
-    if ($dt) { $dt->modify('last day of this month'); $fim = $dt->format('Y-m-d'); }
-  }
-  return [$ini, $fim];
-}
-
 function bool_ptbr($v) {
   if ($v === 'Sim') return 1;
   if ($v === 'Não' || $v === 'Nao') return 0;
   return null;
 }
 
-[$vig_ini, $vig_fim] = parse_vigencia($_POST['vigencia'] ?? '');
+$vig_fim = trim((string)($_POST['vigencia'] ?? ''));
+if ($vig_fim === '') $vig_fim = null;
+$vig_fim = $vig_fim === '' ? null : $vig_fim;
 
 $mes = $_POST['mes'] ?? [];
 $toDecimal = fn($i) => brl_to_decimal($mes[$i] ?? '0');
@@ -85,14 +70,13 @@ $campos = [
   'status_contrato'  => $_POST['status'] ?? null,
   'numero_contrato'  => $_POST['numero_contrato'] ?? null,
   'credor'           => $_POST['credor'] ?? null,
-  'vigencia_inicio'  => $vig_ini,
   'vigencia_fim'     => $vig_fim,
   'dea'              => bool_ptbr($_POST['dea'] ?? null),
   'reajuste'         => bool_ptbr($_POST['reajuste'] ?? null),
   'fonte'            => $_POST['fonte'] ?? null,
   'grupo_despesa'    => $_POST['grupo'] ?? null,
   'sei'              => $_POST['sei'] ?? null,
-  'valor_total'      => brl_to_decimal($_POST['valor_total'] ?? '0'),
+  'valor_total' => brl_to_decimal($_POST['valor_total_contrato'] ?? '0'),
   'acao'             => $_POST['acao'] ?? null,
   'subacao'          => $_POST['subacao'] ?? null,
   'ficha_financeira' => $_POST['ficha_financeira'] ?? null,

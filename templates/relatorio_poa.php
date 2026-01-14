@@ -1,4 +1,9 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
 // relatorio_poa.php
 if (session_status() !== PHP_SESSION_ACTIVE) session_start();
 require_once __DIR__ . '/../config.php';
@@ -45,7 +50,6 @@ if ($busca !== '') {
     $types   .= "sss";
 }
 
-// Seleciona todas as colunas principais da tabela
 $sql = "
   SELECT
     id,
@@ -58,8 +62,8 @@ $sql = "
     status_contrato,
     numero_contrato,
     credor,
-    vigencia_inicio,
     vigencia_fim,
+    observacoes,
     dea,
     reajuste,
     fonte,
@@ -117,6 +121,11 @@ echo "\xEF\xBB\xBF";
 
 $out = fopen('php://output', 'w');
 
+function moedaBR($v) {
+  if ($v === null || $v === '') return '';
+  return number_format((float)$v, 2, ',', '.');
+}
+
 // Cabeçalho das colunas
 $header = [
   'id',
@@ -129,14 +138,14 @@ $header = [
   'status_contrato',
   'numero_contrato',
   'credor',
-  'vigencia_inicio',
   'vigencia_fim',
+  'observacoes',
   'dea',
   'reajuste',
   'fonte',
   'grupo_despesa',
   'sei',
-  'valor_total',
+  'valor_total_contrato',
   'acao',
   'subacao',
   'ficha_financeira',
@@ -171,45 +180,46 @@ $boolToSimNao = function($v) {
 if ($result && $result->num_rows > 0) {
   while ($row = $result->fetch_assoc()) {
     $linha = [
-      $row['id'],
-      $row['codigo_poa'],
-      $row['usuario_cehab'],
-      $row['tema_custo'],
-      $row['setor'],
-      $row['gestor'],
-      $row['objeto'],
-      $row['status_contrato'],
-      $row['numero_contrato'],
-      $row['credor'],
-      $row['vigencia_inicio'],
-      $row['vigencia_fim'],
-      $boolToSimNao($row['dea']),
-      $boolToSimNao($row['reajuste']),
-      $row['fonte'],
-      $row['grupo_despesa'],
-      $row['sei'],
-      $row['valor_total'],
-      $row['acao'],
-      $row['subacao'],
-      $row['ficha_financeira'],
-      $row['macro_tema'],
-      $row['priorizacao'],
-      $boolToSimNao($row['prorrogavel']),
-      $row['janeiro'],
-      $row['fevereiro'],
-      $row['marco'],
-      $row['abril'],
-      $row['maio'],
-      $row['junho'],
-      $row['julho'],
-      $row['agosto'],
-      $row['setembro'],
-      $row['outubro'],
-      $row['novembro'],
-      $row['dezembro'],
-      $row['created_at'],
-      $row['updated_at'],
-    ];
+    $row['id'],
+    $row['codigo_poa'],
+    $row['usuario_cehab'],
+    $row['tema_custo'],
+    $row['setor'],
+    $row['gestor'],
+    $row['objeto'],
+    $row['status_contrato'],
+    $row['numero_contrato'],
+    $row['credor'],
+    $row['vigencia_fim'],
+    $row['observacoes'],
+    $boolToSimNao($row['dea']),
+    $boolToSimNao($row['reajuste']),
+    $row['fonte'],
+    $row['grupo_despesa'],
+    $row['sei'],
+    moedaBR($row['valor_total']),
+    $row['acao'],
+    $row['subacao'],
+    $row['ficha_financeira'],
+    $row['macro_tema'],
+    $row['priorizacao'],
+    $boolToSimNao($row['prorrogavel']),
+    moedaBR($row['janeiro']),
+    moedaBR($row['fevereiro']),
+    moedaBR($row['marco']),
+    moedaBR($row['abril']),
+    moedaBR($row['maio']),
+    moedaBR($row['junho']),
+    moedaBR($row['julho']),
+    moedaBR($row['agosto']),
+    moedaBR($row['setembro']),
+    moedaBR($row['outubro']),
+    moedaBR($row['novembro']),
+    moedaBR($row['dezembro']),
+    $row['created_at'],
+    $row['updated_at'],
+  ];
+
 
     // ; como separador
     fputcsv($out, $linha, ';');

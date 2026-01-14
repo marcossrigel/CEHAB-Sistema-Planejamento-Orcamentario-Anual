@@ -1,4 +1,4 @@
-<?php /* templates/formulario.php */ ?>
+<?php?>
 <!doctype html>
 <html lang="pt-br">
 <head>
@@ -16,7 +16,6 @@
 </head>
 
 <body class="min-h-screen">
-  <!-- Topbar -->
   <header class="sticky top-0 z-40 bg-white/90 backdrop-blur border-b border-slate-200">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
@@ -34,7 +33,6 @@
     </div>
   </header>
 
-  <!-- Form container -->
   <main class="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-8">
     <form class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-8" action="salvar_contrato.php" method="post" id="formContrato">
       <div class="flex items-center justify-between">
@@ -43,7 +41,6 @@
       </div>
 
       <section class="grid grid-cols-1 md:grid-cols-12 gap-5">
-        <!-- L1: Tema de Custo | Setor | Gestor -->
         <div class="md:col-span-4">
           <label class="label" for="tema_custo">Tema de Custo</label>
           <select id="tema_custo" name="tema_custo" class="input select" required>
@@ -115,7 +112,6 @@
           <hr class="my-4 border-slate-200">
         </div>
 
-        <!-- L2 + L3 (Objeto à esquerda; à direita 2 linhas: Status/Nº/ Credor e Vigência/DEA/Reajuste) -->
         <div class="md:col-span-4">
           <label class="label" for="objeto">Objeto / Atividade</label>
           <textarea id="objeto" name="objeto" class="input min-h-[189px]" placeholder="Descreva o objeto ou atividade" required></textarea>
@@ -141,8 +137,8 @@
             </div>
 
             <div class="md:col-span-4">
-              <label class="label" for="vigencia">Vigência</label>
-              <input id="vigencia" name="vigencia" class="input" placeholder="mm/aaaa - mm/aaaa" required>
+              <label class="label" for="vigencia">Vigência (data fim)</label>
+              <input id="vigencia" name="vigencia" class="input" placeholder="ex: 20/2026" required>
             </div>
             <div class="md:col-span-4">
               <label class="label" for="dea">DEA</label>
@@ -206,14 +202,15 @@
             </div>
 
             <div class="md:col-span-4">
-              <label class="label" for="valor_total">Valor Total do Contrato</label>
-              <input id="valor_total" name="valor_total" class="input moeda-total" placeholder="R$ 0,00" inputmode="numeric" required>
+              <label class="label" for="valor_total_contrato">Valor Total do Contrato</label>
+              <input id="valor_total_contrato" name="valor_total_contrato" class="input moeda-total" placeholder="R$ 0,00" inputmode="numeric" required>
             </div>
 
             <div class="md:col-span-4">
               <label class="label" for="acao">Ação</label>
               <select id="acao" name="acao" class="input select" required>
                 <option value="">Selecione...</option>
+                <option>XXXX - Destaque</option>
                 <option>2904 - Formulação e Promoção da Política de Regularização Fundiária</option>
                 <option>2928 - Conservação do Patrimonio Público na Companhia Estadual de Habitação e Obras - CHEAB</option>
                 <option>2998 - Encargos Gerais da Companhia Estadual de Habitação e Obras - CEHAB</option>
@@ -232,6 +229,7 @@
               <label class="label" for="subacao">Subação</label>
               <select id="subacao" name="subacao" class="input select" required>
                 <option value="">Selecione...</option>
+                <option>XXXX - Destaque</option>
                 <option>0000 - Outras Medidas</option>
                 <option>0055 - Programa Minha Casa (Operações Coletivas, CAIC, FNHIS e PSH) - Conclusão da construção de moradias</option>
                 <option>0865 - Operacionalização do Programa Minha Casa Minha Vida</option>
@@ -250,6 +248,9 @@
                 <option>2885 - Reforma no Lar - PROGRAMA MORAR BEM PE</option>
                 <option>3242 - Execução das obras de pavimentação, drenagem e sinalização da estrada Lygia Gomes da Silva - Ouro Preto</option>
                 <option>3325 - Obras não incidentes - FAR e FDS</option>
+                <option>3324 - Execução das obras de pavimentação</option>
+                <option>3385 - Construção de obra de arte especial - PONTE, sobre o Rio Una (VPE-147, trecho: Barra do Jardim Altinho/PE)</option>
+                <option>3613 - Execução de obras de infraestrutura e construção de unidades habitacionais na av. Cruz Cabugá (Santo Amaro Recife)</option>
                 <option>3352 - Programa Morar Bem - Construção de Unidades Habitacionais</option>
                 <option>A386 - Execução de obras de infraestrutura e construção de unidades habitacionais na Bacia do Fregoso II</option>
                 <option>A389 - Execução de obras de infraestrutura e construção de unidades habitacionais no Canal do Jordão</option>
@@ -270,8 +271,6 @@
         </div>
       </div>
 
-
-        <!-- L5: Ficha Financeira | Macro Tema | Priorização | É Prorrogável? -->
         <div class="md:col-span-4">
           <label class="label" for="ficha_financeira">Ficha Financeira</label>
           <select id="ficha_financeira" name="ficha_financeira" class="input" required>
@@ -357,7 +356,6 @@
           <hr class="my-4 border-slate-200">
       </div>
 
-      <!-- Tabela de Meses -->
       <section class="space-y-3">
         <h2 class="text-base font-semibold text-slate-900">Tabela de Meses</h2>
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3" required>
@@ -383,7 +381,7 @@
 
   <script src="../js/condicionais_poa.js" defer></script>
   <?php
-    $jsPath = __DIR__ . '/../js/formulario.js'; // ajuste se necessário
+    $jsPath = __DIR__ . '/../js/formulario.js';
     $v = file_exists($jsPath) ? filemtime($jsPath) : time();
   ?>
   <script src="../js/formulario.js?v=<?= $v ?>" defer></script>
