@@ -1,4 +1,11 @@
 <?php
+$manutencao = true; 
+
+if ($manutencao) {
+    include __DIR__ . '/manutencao.php';
+    exit;
+}
+
 if (session_status() !== PHP_SESSION_ACTIVE) session_start();
 require_once __DIR__.'/config.php';
 
