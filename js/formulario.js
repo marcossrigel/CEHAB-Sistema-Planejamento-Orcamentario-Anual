@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
         opts.find((o) => norm(o.text).includes(qn));
 
       if (found) {
-        selectEl.value = found.text; // seus <option> usam o próprio texto como value
+        selectEl.value = found.value; // seus <option> usam o próprio texto como value
         const changed = selectEl.value !== prev;
         selectEl.dispatchEvent(new Event('change', { bubbles: true }));
         if (changed) flashSelect(selectEl);
@@ -221,6 +221,30 @@ document.addEventListener('DOMContentLoaded', () => {
       flashSelect(fonteEl);
       flashSelect(grupoSelect);
       flashSelect(acaoEl);
+      return;
+    }
+
+        // ================== TEMA 40 - DESTAQUE ==================
+    if (temaCodigo === '40') {
+      autoLock = true;
+
+      pickOption(fonteEl, ['XXXX - Destaque', 'XXXX']);
+      pickOption(grupoSelect, ['4 - Investimentos', '4 -']);
+      pickOption(acaoEl, ['XXXX - Destaque', 'XXXX']);
+      pickOption(subEl, ['XXXX - Destaque', 'XXXX']);
+      pickOption(fichaEl, ['G4 - Destaque Orçamentário', 'G4 - Destaque Orcamentario', 'G4 - Destaque']);
+
+      autoLock = false;
+
+      // trava para não editar (igual outros temas fechados)
+      setCamposDisabled(true);
+
+      flashSelect(fonteEl);
+      flashSelect(grupoSelect);
+      flashSelect(acaoEl);
+      flashSelect(subEl);
+      flashSelect(fichaEl);
+
       return;
     }
 

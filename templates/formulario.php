@@ -84,7 +84,8 @@
             <option>37 - Encargos com o PIS e o COFINS</option>
             <option>38 - Apoio Administrativo</option>
             <option>39 - Apoio Especializado</option>
-
+            <option>40 - Destaque</option>
+            
           </select>
         </div>
         <div class="md:col-span-4">
@@ -106,6 +107,15 @@
         <div class="md:col-span-4">
           <label class="label" for="gestor">Gestor Responsável</label>
           <input id="gestor" name="gestor" class="input" placeholder="Nome do gestor" required>
+        </div>
+
+        <div class="md:col-span-4">
+          <label class="label" for="licenca_ambiental_valida">Item de licença ambiental válida</label>
+          <select id="licenca_ambiental_valida" name="licenca_ambiental_valida" class="input select" required>
+            <option value="">Selecione...</option>
+            <option value="Sim">Sim</option>
+            <option value="Não">Não</option>
+          </select>
         </div>
 
         <div class="md:col-span-12">
@@ -183,6 +193,7 @@
                 <option>0500 - (Tesouro do Estado)</option>
                 <option>0700 - (Repasse de Convênio)</option>
                 <option>0754 - (Operação de Crédito)</option>
+                <option>XXXX - Destaque</option>
               </select>
             </div>
 
@@ -313,6 +324,7 @@
             <option>G3 - Apoio Especializado</option>
             <option>G4 - Minha Casa Minha Vida</option>
             <option>G4 - Contrapartida de Convênio</option>
+            <option>G4 - Destaque Orçamentário</option>
           </select>
         </div>
 

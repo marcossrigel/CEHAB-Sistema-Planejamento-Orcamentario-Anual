@@ -66,6 +66,7 @@ $campos = [
   'tema_custo'       => $temaSelecionado,
   'setor'            => $_POST['setor'] ?? null,
   'gestor'           => $_POST['gestor'] ?? null,
+  'licenca_ambiental_valida' => $_POST['licenca_ambiental_valida'] ?? null,
   'objeto'           => $_POST['objeto'] ?? null,
   'status_contrato'  => $_POST['status'] ?? null,
   'numero_contrato'  => $_POST['numero_contrato'] ?? null,

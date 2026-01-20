@@ -152,6 +152,7 @@ foreach ($mesCampos as $campo) {
               <option <?= selected_val($contrato['tema_custo'],'37 - Encargos com o PIS e o COFINS') ?>>37 - Encargos com o PIS e o COFINS</option>
               <option <?= selected_val($contrato['tema_custo'],'38 - Apoio Administrativo') ?>>38 - Apoio Administrativo</option>
               <option <?= selected_val($contrato['tema_custo'],'39 - Apoio Especializado') ?>>39 - Apoio Especializado</option>
+              <option <?= selected_val($contrato['tema_custo'],'40 - Destaque') ?>>40 - Destaque</option>
             </select>
           </div>
           <div class="md:col-span-4">
@@ -165,12 +166,23 @@ foreach ($mesCampos as $campo) {
               <option <?= selected_val($contrato['setor'],'DP (PESSOAL)') ?>>DP (PESSOAL)</option>
               <option <?= selected_val($contrato['setor'],'DPH') ?>>DPH</option>
               <option <?= selected_val($contrato['setor'],'SAJ') ?>>SAJ</option>
+              <option <?= selected_val($contrato['setor'],'DOHDU') ?>>DOHDU</option>
             </select>
           </div>
           <div class="md:col-span-4">
             <label class="label" for="gestor">Gestor Responsável</label>
             <input id="gestor" name="gestor" class="input" placeholder="Nome do gestor" value="<?= h($contrato['gestor']) ?>">
           </div>
+
+          <div class="md:col-span-4">
+            <label class="label" for="licenca_ambiental_valida">Item de licença ambiental válida</label>
+            <select id="licenca_ambiental_valida" name="licenca_ambiental_valida" class="input select">
+              <option value="">Selecione...</option>
+              <option value="Sim" <?= selected_val($contrato['licenca_ambiental_valida'] ?? '', 'Sim') ?>>Sim</option>
+              <option value="Não" <?= selected_val($contrato['licenca_ambiental_valida'] ?? '', 'Não') ?>>Não</option>
+            </select>
+          </div>
+
 
           <div class="md:col-span-12">
             <hr class="my-4 border-slate-200">
@@ -235,6 +247,7 @@ foreach ($mesCampos as $campo) {
               <option <?= selected_val($contrato['fonte'],'0500 - (Tesouro do Estado)') ?>>0500 - (Tesouro do Estado)</option>
               <option <?= selected_val($contrato['fonte'],'0700 - (Repasse de Convênio)') ?>>0700 - (Repasse de Convênio)</option>
               <option <?= selected_val($contrato['fonte'],'0754 - (Operação de Crédito)') ?>>0754 - (Operação de Crédito)</option>
+              <option <?= selected_val($contrato['fonte'],'XXXX - Destaque') ?>>XXXX - Destaque</option>
             </select>
           </div>
           <div class="md:col-span-4">
@@ -271,6 +284,7 @@ foreach ($mesCampos as $campo) {
               <option <?= selected_val($contrato['acao'],'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB') ?>>4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB</option>
               <option <?= selected_val($contrato['acao'],'4587 - Contribuições Patronais da CEHAB') ?>>4587 - Contribuições Patronais da CEHAB</option>
               <option <?= selected_val($contrato['acao'],'4613 - Encargos com o PIS e o COFINS da Companhia Estadual de Habitação e Obras - CEHAB') ?>>4613 - Encargos com o PIS e o COFINS da Companhia Estadual de Habitação e Obras - CEHAB</option>
+              <option <?= selected_val($contrato['acao'],'XXXX - Destaque') ?>>XXXX - Destaque</option>
             </select>
           </div>
           <div class="md:col-span-4">
@@ -309,6 +323,7 @@ foreach ($mesCampos as $campo) {
               <option <?= selected_val($contrato['subacao'],'B668 - Despesas com publicação oficiais de CEHAB em diário oficial') ?>>B668 - Despesas com publicação oficiais de CEHAB em diário oficial</option>
               <option <?= selected_val($contrato['subacao'],'B669 - Pagamento de apenados em processo de ressocialização na CEHAB') ?>>B669 - Pagamento de apenados em processo de ressocialização na CEHAB</option>
               <option <?= selected_val($contrato['subacao'],'B670 - Prestação de serviços de segurança pessoal e patrimonial na CEHAB ') ?>>B670 - Prestação de serviços de segurança pessoal e patrimonial na CEHAB </option>
+              <option <?= selected_val($contrato['subacao'],'XXXX - Destaque ') ?>>XXXX - Destaque </option>
             </select>
           </div>
 
@@ -356,6 +371,7 @@ foreach ($mesCampos as $campo) {
                 'G3 - Apoio Especializado',
                 'G4 - Minha Casa Minha Vida',
                 'G4 - Contrapartida de Convênio',
+                'G4 - Destaque Orçamentário'
               ];
               foreach ($fichas as $f) {
                 echo '<option '.selected_val($contrato['ficha_financeira'],$f).'>'.h($f).'</option>';
