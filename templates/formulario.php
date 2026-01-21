@@ -168,165 +168,309 @@
           </div>
         </div>
 
-        <div class="md:col-span-12">
-          <hr class="my-4 border-slate-200">
-        </div>
+        <!-- (continua dentro do mesmo <form> ...) -->
 
-        <div class="md:col-span-4">
-          <label class="label" for="observacoes">Observações</label>
-          <textarea
-            id="observacoes"
-            name="observacoes"
+<div class="md:col-span-12">
+  <hr class="my-4 border-slate-200">
+</div>
+
+<!-- Observações + Fonte/Grupo/SEI/Valor/Ação/Subação -->
+<div class="md:col-span-4">
+  <label class="label" for="observacoes">Observações</label>
+  <textarea id="observacoes" name="observacoes"
             class="input min-h-[189px]"
-            placeholder="Observações gerais sobre o contrato, fonte de recurso, justificativas ou apontamentos..."
-            required
-          ></textarea>
-        </div>
+            placeholder="Observações gerais..." required></textarea>
+</div>
 
-        <div class="md:col-span-8">
-          <div class="grid md:grid-cols-8 gap-x-5 gap-y-1.5">
+<div class="md:col-span-8">
+  <div class="grid md:grid-cols-8 gap-x-5 gap-y-1.5">
+
+    <div class="md:col-span-4">
+      <label class="label" for="fonte">Fonte</label>
+      <select id="fonte" name="fonte" class="input select" required>
+        <option value="">Selecione...</option>
+        <option value="0500 - (Tesouro do Estado)">0500 - (Tesouro do Estado)</option>
+        <option value="0700 - (Repasse de Convênio)">0700 - (Repasse de Convênio)</option>
+        <option value="0754 - (Operação de Crédito)">0754 - (Operação de Crédito)</option>
+        <option value="XXXX - Destaque">XXXX - Destaque</option>
+      </select>
+    </div>
+
+    <div class="md:col-span-4">
+      <label class="label" for="grupo">Grupo</label>
+      <select id="grupo" name="grupo" class="input select" required>
+        <option value="">Selecione...</option>
+        <option value="1 - Pessoal">1 - Pessoal</option>
+        <option value="3 - Despesa Corrente">3 - Despesa Corrente</option>
+        <option value="4 - Investimentos">4 - Investimentos</option>
+      </select>
+    </div>
+
+    <div class="md:col-span-4">
+      <label class="label" for="sei">Número do SEI</label>
+      <input id="sei" name="sei" class="input" placeholder="0000000-00.0000.0.00.0000">
+    </div>
+
+    <div class="md:col-span-4">
+      <label class="label" for="valor_total_contrato">Valor Total do Contrato</label>
+      <input id="valor_total_contrato" name="valor_total_contrato"
+             class="input moeda-total" placeholder="R$ 0,00" inputmode="numeric" required>
+    </div>
+
+<div class="md:col-span-4">
+  <label class="label" for="acao">Ação</label>
+  <select id="acao" name="acao" class="input select" required>
+    <option value="">Selecione...</option>
+
+    <option value="XXXX - Destaque">XXXX - Destaque</option>
+    <option value="2904 - Formulação e Promoção da Política de Regularização Fundiária">
+      2904 - Formulação e Promoção da Política de Regularização Fundiária
+    </option>
+
+    <option value="2998 - Encargos Gerais da Companhia Estadual de Habitação e Obras - CEHAB">
+      2998 - Encargos Gerais da Companhia Estadual de Habitação e Obras - CEHAB
+    </option>
+
+    <option value="3902 - Fomento e Apoio ao Conselho Estaudal de Habitação de Interesse Social - CEHAB">
+      3902 - Fomento e Apoio ao Conselho Estaudal de Habitação de Interesse Social - CEHAB
+    </option>
+
+    <option value="3927 - Manutenção da Ouvidoria da Companhia Estadual de Habitação e Obras - CEHAB">
+      3927 - Manutenção da Ouvidoria da Companhia Estadual de Habitação e Obras - CEHAB
+    </option>
+
+    <option value="4058 - Ampliação da Oferta e Requalificação de Habitação de Interesse Social">
+      4058 - Ampliação da Oferta e Requalificação de Habitação de Interesse Social
+    </option>
+
+    <option value="4300 - Execução de Obras de Infraestrutura e de Urbanização">
+      4300 - Execução de Obras de Infraestrutura e de Urbanização
+    </option>
+
+    <option value="4301 - Pesquisa e Assessoria Técnica para Habitação de Interesse Social">
+      4301 - Pesquisa e Assessoria Técnica para Habitação de Interesse Social
+    </option>
+
+    <option value="4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB">
+      4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB
+    </option>
+
+    <option value="4587 - Contribuições Patronais da CEHAB">
+      4587 - Contribuições Patronais da CEHAB
+    </option>
+
+    <option value="4613 - Encargos com o PIS e o COFINS da Companhia Estadual de Habitação e Obras - CEHAB">
+      4613 - Encargos com o PIS e o COFINS da Companhia Estadual de Habitação e Obras - CEHAB
+    </option>
+  </select>
+</div>
+
 
             <div class="md:col-span-4">
-              <label class="label" for="fonte">Fonte</label>
-              <select id="fonte" name="fonte" class="input select" required>
-                <option value="">Selecione...</option>
-                <option>0500 - (Tesouro do Estado)</option>
-                <option>0700 - (Repasse de Convênio)</option>
-                <option>0754 - (Operação de Crédito)</option>
-                <option>XXXX - Destaque</option>
-              </select>
-            </div>
+  <label class="label" for="subacao">Subação</label>
+  <select id="subacao" name="subacao" class="input select" required>
+    <option value="">Selecione...</option>
 
-            <div class="md:col-span-4">
-              <label class="label" for="grupo">Grupo</label>
-              <select id="grupo" name="grupo" class="input select" required>
-                <option value="">Selecione...</option>
-                <option>1 - Pessoal</option>
-                <option>3 - Despesa Corrente</option>
-                <option>4 - Investimentos</option>
-              </select>
-            </div>
+    <option value="XXXX - Destaque">XXXX - Destaque</option>
+    <option value="0000 - Outras Medidas">0000 - Outras Medidas</option>
 
-            <div class="md:col-span-4">
-              <label class="label" for="sei">Número do SEI</label>
-              <input id="sei" name="sei" class="input" placeholder="0000000-00.0000.0.00.0000">
-            </div>
+    <option value="0055 - Programa Minha Casa (Operações Coletivas, CAIC, FNHIS e PSH) - Conclusão da construção de moradias">
+      0055 - Programa Minha Casa (Operações Coletivas, CAIC, FNHIS e PSH) - Conclusão da construção de moradias
+    </option>
 
-            <div class="md:col-span-4">
-              <label class="label" for="valor_total_contrato">Valor Total do Contrato</label>
-              <input id="valor_total_contrato" name="valor_total_contrato" class="input moeda-total" placeholder="R$ 0,00" inputmode="numeric" required>
-            </div>
+    <option value="0865 - Operacionalização do Programa Minha Casa Minha Vida">
+      0865 - Operacionalização do Programa Minha Casa Minha Vida
+    </option>
 
-            <div class="md:col-span-4">
-              <label class="label" for="acao">Ação</label>
-              <select id="acao" name="acao" class="input select" required>
-                <option value="">Selecione...</option>
-                <option>XXXX - Destaque</option>
-                <option>2904 - Formulação e Promoção da Política de Regularização Fundiária</option>
-                <option>2928 - Conservação do Patrimonio Público na Companhia Estadual de Habitação e Obras - CHEAB</option>
-                <option>2998 - Encargos Gerais da Companhia Estadual de Habitação e Obras - CEHAB</option>
-                <option>3902 - Fomento e Apoio ao Conselho Estaudal de Habitação de Interesse Social - CEHAB</option>
-                <option>3927 - Manutenção da Ouvidoria da Companhia Estadual de Habitação e Obras - CEHAB</option>
-                <option>4058 - Ampliação da Oferta e Requalificação de Habitação de Interesse Social</option>
-                <option>4300 - Execução de Obras de Infraestrutura e de Urbanização</option>
-                <option>4301 - Pesquisa e Assessoria Técnica para Habitação de Interesse Social</option>
-                <option>4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB</option>
-                <option>4587 - Contribuições Patronais da CEHAB</option>
-                <option>4613 - Encargos com o PIS e o COFINS da Companhia Estadual de Habitação e Obras - CEHAB</option>
-              </select>
-            </div>
+    <option value="1163 - Acompanhamento do cadastro de famílias beneficiadas pelo auxílio moradia">
+      1163 - Acompanhamento do cadastro de famílias beneficiadas pelo auxílio moradia
+    </option>
 
-            <div class="md:col-span-4">
-              <label class="label" for="subacao">Subação</label>
-              <select id="subacao" name="subacao" class="input select" required>
-                <option value="">Selecione...</option>
-                <option>XXXX - Destaque</option>
-                <option>0000 - Outras Medidas</option>
-                <option>0055 - Programa Minha Casa (Operações Coletivas, CAIC, FNHIS e PSH) - Conclusão da construção de moradias</option>
-                <option>0865 - Operacionalização do Programa Minha Casa Minha Vida</option>
-                <option>1163 - Acompanhamento do cadastro de famílias beneficiadas pelo auxílio moradia </option>
-                <option>1399 - Execução de obras de infraestrutura e construção de unidades habitacionais na comunidade de Escorregou Tá Dentro (Afogrados - Recife)</option>
-                <option>1400 - Execução de obras de infraestrutura e construção de unidades habitacionais na comunidade de Mulheres de Tejucupapo (Iputinga - Recife)</option>
-                <option>2067 - Obras e Projetos da Vila Claudete</option>
-                <option>2217 - Execução das obras de implantação de adutora de recalque do Loteamento Snta Clara - Barreiros/PE</option>
-                <option>2409 - Entrada Garantida - Programa Morar Bem</option>
-                <option>2787 - Contribuições Patronais da CEHAB ao FUNAFIN</option>
-                <option>2790 - Manutenção da Tecnologia de Informação e Comunicação da CEHAB</option>
-                <option>2791 - Fornecimento de vale transporte para servidores da CEHAB</option>
-                <option>2792 - Fornecimento de vale alimentação para servidores da CEHAB</option>
-                <option>2793 - Regularização Fundiária e Oferta de Lotes Urbanos com Interesse Social</option>
-                <option>2794 - Auxílio Moradia - CEHAB</option>
-                <option>2885 - Reforma no Lar - PROGRAMA MORAR BEM PE</option>
-                <option>3242 - Execução das obras de pavimentação, drenagem e sinalização da estrada Lygia Gomes da Silva - Ouro Preto</option>
-                <option>3325 - Obras não incidentes - FAR e FDS</option>
-                <option>3324 - Execução das obras de pavimentação</option>
-                <option>3385 - Construção de obra de arte especial - PONTE, sobre o Rio Una (VPE-147, trecho: Barra do Jardim Altinho/PE)</option>
-                <option>3613 - Execução de obras de infraestrutura e construção de unidades habitacionais na av. Cruz Cabugá (Santo Amaro Recife)</option>
-                <option>3352 - Programa Morar Bem - Construção de Unidades Habitacionais</option>
-                <option>A386 - Execução de obras de infraestrutura e construção de unidades habitacionais na Bacia do Fregoso II</option>
-                <option>A389 - Execução de obras de infraestrutura e construção de unidades habitacionais no Canal do Jordão</option>
-                <option>A401 - Execução de obras de infraestrutura e construção de unidades habitacionais em Azeitona(UE11) e Peixinhos (UE12)</option>
-                <option>B156 - Construção da Via Metropolitana Norte (Fragoso - viaduto da PE-15/revestimento do canal/viário até Janga)</option>
-                <option>B661 - Despesas com taxa de água e esgoto da CEHAB</option>
-                <option>B662 - Despesas com combustível da CEHAB</option>
-                <option>B664 - Despesas com tarifa de energia </option>
-                <option>B665 - Prestação de serviços de limpeza e conservação da CEHAB</option>
-                <option>B666 - Despesas com locação de veículos da CEHAB</option>
-                <option>B667 - Prestação de serviços de motorista na CEHAB</option>
-                <option>B668 - Despesas com publicação oficiais de CEHAB em diário oficial</option>
-                <option>B669 - Pagamento de apenados em processo de ressocialização na CEHAB</option>
-                <option>B670 - Prestação de serviços de segurança pessoal e patrimonial na CEHAB </option>
-              </select>
-            </div>
+    <option value="1399 - Execução de obras de infraestrutura e construção de unidades habitacionais na comunidade de Escorregou Tá Dentro (Afogrados - Recife)">
+      1399 - Execução de obras de infraestrutura e construção de unidades habitacionais na comunidade de Escorregou Tá Dentro (Afogrados - Recife)
+    </option>
+
+    <option value="1400 - Execução de obras de infraestrutura e construção de unidades habitacionais na comunidade de Mulheres de Tejucupapo (Iputinga - Recife)">
+      1400 - Execução de obras de infraestrutura e construção de unidades habitacionais na comunidade de Mulheres de Tejucupapo (Iputinga - Recife)
+    </option>
+
+    <option value="2067 - Obras e Projetos da Vila Claudete">
+      2067 - Obras e Projetos da Vila Claudete
+    </option>
+
+    <option value="2217 - Execução das obras de implantação de adutora de recalque do Loteamento Snta Clara - Barreiros/PE">
+      2217 - Execução das obras de implantação de adutora de recalque do Loteamento Snta Clara - Barreiros/PE
+    </option>
+
+    <option value="2409 - Entrada Garantida - Programa Morar Bem">
+      2409 - Entrada Garantida - Programa Morar Bem
+    </option>
+
+    <option value="2787 - Contribuições Patronais da CEHAB ao FUNAFIN">
+      2787 - Contribuições Patronais da CEHAB ao FUNAFIN
+    </option>
+
+    <option value="2790 - Manutenção da Tecnologia de Informação e Comunicação da CEHAB">
+      2790 - Manutenção da Tecnologia de Informação e Comunicação da CEHAB
+    </option>
+
+    <option value="2791 - Fornecimento de vale transporte para servidores da CEHAB">
+      2791 - Fornecimento de vale transporte para servidores da CEHAB
+    </option>
+
+    <option value="2792 - Fornecimento de vale alimentação para servidores da CEHAB">
+      2792 - Fornecimento de vale alimentação para servidores da CEHAB
+    </option>
+
+    <option value="2793 - Regularização Fundiária e Oferta de Lotes Urbanos com Interesse Social">
+      2793 - Regularização Fundiária e Oferta de Lotes Urbanos com Interesse Social
+    </option>
+
+    <option value="2794 - Auxílio Moradia - CEHAB">
+      2794 - Auxílio Moradia - CEHAB
+    </option>
+
+    <option value="2885 - Reforma no Lar - PROGRAMA MORAR BEM PE">
+      2885 - Reforma no Lar - PROGRAMA MORAR BEM PE
+    </option>
+
+    <option value="3242 - Execução das obras de pavimentação, drenagem e sinalização da estrada Lygia Gomes da Silva - Ouro Preto">
+      3242 - Execução das obras de pavimentação, drenagem e sinalização da estrada Lygia Gomes da Silva - Ouro Preto
+    </option>
+
+    <option value="3325 - Obras não incidentes - FAR e FDS">
+      3325 - Obras não incidentes - FAR e FDS
+    </option>
+
+    <option value="3324 - Execução das obras de pavimentação">
+      3324 - Execução das obras de pavimentação
+    </option>
+
+    <option value="3385 - Construção de obra de arte especial - PONTE, sobre o Rio Una (VPE-147, trecho: Barra do Jardim Altinho/PE)">
+      3385 - Construção de obra de arte especial - PONTE, sobre o Rio Una (VPE-147, trecho: Barra do Jardim Altinho/PE)
+    </option>
+
+    <option value="3613 - Execução de obras de infraestrutura e construção de unidades habitacionais na av. Cruz Cabugá (Santo Amaro Recife)">
+      3613 - Execução de obras de infraestrutura e construção de unidades habitacionais na av. Cruz Cabugá (Santo Amaro Recife)
+    </option>
+
+    <option value="3352 - Programa Morar Bem - Construção de Unidades Habitacionais">
+      3352 - Programa Morar Bem - Construção de Unidades Habitacionais
+    </option>
+
+    <option value="A386 - Execução de obras de infraestrutura e construção de unidades habitacionais na Bacia do Fregoso II">
+      A386 - Execução de obras de infraestrutura e construção de unidades habitacionais na Bacia do Fregoso II
+    </option>
+
+    <option value="A389 - Execução de obras de infraestrutura e construção de unidades habitacionais no Canal do Jordão">
+      A389 - Execução de obras de infraestrutura e construção de unidades habitacionais no Canal do Jordão
+    </option>
+
+    <option value="A401 - Execução de obras de infraestrutura e construção de unidades habitacionais em Azeitona(UE11) e Peixinhos (UE12)">
+      A401 - Execução de obras de infraestrutura e construção de unidades habitacionais em Azeitona(UE11) e Peixinhos (UE12)
+    </option>
+
+    <option value="B156 - Construção da Via Metropolitana Norte (Fragoso - viaduto da PE-15/revestimento do canal/viário até Janga)">
+      B156 - Construção da Via Metropolitana Norte (Fragoso - viaduto da PE-15/revestimento do canal/viário até Janga)
+    </option>
+
+    <option value="B661 - Despesas com taxa de água e esgoto da CEHAB">
+      B661 - Despesas com taxa de água e esgoto da CEHAB
+    </option>
+
+    <option value="B662 - Despesas com combustível da CEHAB">
+      B662 - Despesas com combustível da CEHAB
+    </option>
+
+    <option value="B664 - Despesas com tarifa de energia">
+      B664 - Despesas com tarifa de energia
+    </option>
+
+    <option value="B665 - Prestação de serviços de limpeza e conservação da CEHAB">
+      B665 - Prestação de serviços de limpeza e conservação da CEHAB
+    </option>
+
+    <option value="B666 - Despesas com locação de veículos da CEHAB">
+      B666 - Despesas com locação de veículos da CEHAB
+    </option>
+
+    <option value="B667 - Prestação de serviços de motorista na CEHAB">
+      B667 - Prestação de serviços de motorista na CEHAB
+    </option>
+
+    <option value="B668 - Despesas com publicação oficiais de CEHAB em diário oficial">
+      B668 - Despesas com publicação oficiais de CEHAB em diário oficial
+    </option>
+
+    <option value="B669 - Pagamento de apenados em processo de ressocialização na CEHAB">
+      B669 - Pagamento de apenados em processo de ressocialização na CEHAB
+    </option>
+
+    <option value="B670 - Prestação de serviços de segurança pessoal e patrimonial na CEHAB">
+      B670 - Prestação de serviços de segurança pessoal e patrimonial na CEHAB
+    </option>
+
+  </select>
+</div>
+
 
         </div>
       </div>
 
         <div class="md:col-span-4">
-          <label class="label" for="ficha_financeira">Ficha Financeira</label>
-          <select id="ficha_financeira" name="ficha_financeira" class="input" required>
-            <option value="">Selecione...</option>
-            <option>G3 - Água e Esgoto</option>
-            <option>G3 - Apoio Administrativo</option>
-            <option>G3 - Apoio Administrativo - Estagiários</option>
-            <option>G3 - Auxílio Funeral</option>
-            <option>G3 - Auxílio Moradia</option>
-            <option>G3 - Auxílio Moradia - Operação Prontidão</option>
-            <option>G3 - Combustíveis/Manutenção Veículos</option>
-            <option>G3 - Cota Global</option>
-            <option>G3 - Demandas Judiciais</option>
-            <option>G4 - Devolução - Recursos do Concedente</option>
-            <option>G3 - Diárias Civil</option>
-            <option>G3 - Energia Elétrica</option>
-            <option>G1 - FGTS</option>
-            <option>G3 - Fornecimento de Passagens</option>
-            <option>G1 - INSS</option>
-            <option>G3 - Limpeza e Conservação</option>
-            <option>G3 - Locação de Veículos</option>
-            <option>G3 - Manutenção Predial</option>
-            <option>G3 - Material de Expediente/Copa/Limpeza/Gráfico</option>
-            <option>G3 - Motoristas</option>
-            <option>G4 - Obra</option>
-            <option>G4 - Operações de Crédito</option>
-            <option>G4 - Outros</option>
-            <option>G3 - Outros</option>
-            <option>G1 - Pessoal e Encargos Sociais</option>
-            <option>G3 - Publicações Oficiais</option>
-            <option>G4 - Recursos do Concedente</option>
-            <option>G3 - Rede Digital Corporativa do Estado</option>
-            <option>G1 - Ressarcimento Pessoal à Disposição</option>
-            <option>G3 - Salário de Apenados</option>
-            <option>G3 - Serviços de Informática</option>
-            <option>G3 - Serviços de Portaria</option>
-            <option>G3 - Suprimento Individual</option>
-            <option>G3 - Vigilância Ostensiva</option>
-            <option>G4 - Supervisão de Obra</option>
-            <option>G3 - Apoio Especializado</option>
-            <option>G4 - Minha Casa Minha Vida</option>
-            <option>G4 - Contrapartida de Convênio</option>
-            <option>G4 - Destaque Orçamentário</option>
-          </select>
-        </div>
+  <label class="label" for="ficha_financeira">Ficha Financeira</label>
+  <select id="ficha_financeira" name="ficha_financeira" class="input select" required>
+    <option value="">Selecione...</option>
+
+    <option value="G3 - Água e Esgoto">G3 - Água e Esgoto</option>
+    <option value="G3 - Apoio Administrativo">G3 - Apoio Administrativo</option>
+    <option value="G3 - Apoio Administrativo - Estagiários">G3 - Apoio Administrativo - Estagiários</option>
+    <option value="G3 - Auxílio Funeral">G3 - Auxílio Funeral</option>
+    <option value="G3 - Auxílio Moradia">G3 - Auxílio Moradia</option>
+    <option value="G3 - Auxílio Moradia - Operação Prontidão">G3 - Auxílio Moradia - Operação Prontidão</option>
+    <option value="G3 - Combustíveis/Manutenção Veículos">G3 - Combustíveis/Manutenção Veículos</option>
+    <option value="G3 - Cota Global">G3 - Cota Global</option>
+    <option value="G3 - Demandas Judiciais">G3 - Demandas Judiciais</option>
+    <option value="G4 - Devolução - Recursos do Concedente">G4 - Devolução - Recursos do Concedente</option>
+    <option value="G3 - Diárias Civil">G3 - Diárias Civil</option>
+    <option value="G3 - Energia Elétrica">G3 - Energia Elétrica</option>
+    <option value="G1 - FGTS">G1 - FGTS</option>
+    <option value="G3 - Fornecimento de Passagens">G3 - Fornecimento de Passagens</option>
+    <option value="G1 - INSS">G1 - INSS</option>
+    <option value="G3 - Limpeza e Conservação">G3 - Limpeza e Conservação</option>
+    <option value="G3 - Locação de Veículos">G3 - Locação de Veículos</option>
+    <option value="G3 - Manutenção Predial">G3 - Manutenção Predial</option>
+    <option value="G3 - Material de Expediente/Copa/Limpeza/Gráfico">
+      G3 - Material de Expediente/Copa/Limpeza/Gráfico
+    </option>
+    <option value="G3 - Motoristas">G3 - Motoristas</option>
+    <option value="G4 - Obra">G4 - Obra</option>
+    <option value="G4 - Operações de Crédito">G4 - Operações de Crédito</option>
+    <option value="G4 - Outros">G4 - Outros</option>
+    <option value="G3 - Outros">G3 - Outros</option>
+    <option value="G1 - Pessoal e Encargos Sociais">G1 - Pessoal e Encargos Sociais</option>
+    <option value="G3 - Publicações Oficiais">G3 - Publicações Oficiais</option>
+    <option value="G4 - Recursos do Concedente">G4 - Recursos do Concedente</option>
+    <option value="G3 - Rede Digital Corporativa do Estado">
+      G3 - Rede Digital Corporativa do Estado
+    </option>
+    <option value="G1 - Ressarcimento Pessoal à Disposição">
+      G1 - Ressarcimento Pessoal à Disposição
+    </option>
+    <option value="G3 - Salário de Apenados">G3 - Salário de Apenados</option>
+    <option value="G3 - Serviços de Informática">G3 - Serviços de Informática</option>
+    <option value="G3 - Serviços de Portaria">G3 - Serviços de Portaria</option>
+    <option value="G3 - Suprimento Individual">G3 - Suprimento Individual</option>
+    <option value="G3 - Vigilância Ostensiva">G3 - Vigilância Ostensiva</option>
+    <option value="G4 - Supervisão de Obra">G4 - Supervisão de Obra</option>
+    <option value="G3 - Apoio Especializado">G3 - Apoio Especializado</option>
+    <option value="G4 - Minha Casa Minha Vida">G4 - Minha Casa Minha Vida</option>
+    <option value="G4 - Contrapartida de Convênio">G4 - Contrapartida de Convênio</option>
+    <option value="G4 - Destaque Orçamentário">G4 - Destaque Orçamentário</option>
+
+  </select>
+</div>
+
 
         <div class="md:col-span-3">
           <label class="label" for="macro_tema">Macro Tema</label>

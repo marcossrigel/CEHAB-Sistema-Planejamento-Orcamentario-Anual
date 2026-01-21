@@ -292,71 +292,92 @@ foreach ($mesCampos as $c) {
         </div>
 
         <div class="md:col-span-12">
-          <hr class="my-4 border-slate-200">
-        </div>
+  <hr class="my-4 border-slate-200">
+</div>
 
-        <div class="md:col-span-4">
-          <label class="label" for="fonte">Fonte</label>
-          <select id="fonte" name="fonte" class="input select">
-            <option value="">Selecione...</option>
-            <option <?= selected_val($contrato['fonte'],'0500 - (Tesouro do Estado)') ?>>0500 - (Tesouro do Estado)</option>
-            <option <?= selected_val($contrato['fonte'],'0700 - (Repasse de Convênio)') ?>>0700 - (Repasse de Convênio)</option>
-            <option <?= selected_val($contrato['fonte'],'0754 - (Operação de Crédito)') ?>>0754 - (Operação de Crédito)</option>
-            <option value="XXXX - Destaque" <?= selected_val($contrato['fonte'],'XXXX - Destaque') ?>>
-              XXXX - (Destaque)
-            </option>
-          </select>
-        </div>
-        <div class="md:col-span-4">
-          <label class="label" for="grupo">Grupo</label>
-          <select id="grupo" name="grupo" class="input select">
-            <option value="">Selecione...</option>
-            <option <?= selected_val($contrato['grupo_despesa'],'1 - Pessoal') ?>>1 - Pessoal</option>
-            <option <?= selected_val($contrato['grupo_despesa'],'3 - Despesa Corrente') ?>>3 - Despesa Corrente</option>
-            <option <?= selected_val($contrato['grupo_despesa'],'4 - Investimentos') ?>>4 - Investimentos</option>
-          </select>
-        </div>
-        <div class="md:col-span-4">
-          <label class="label" for="sei">Número do SEI</label>
-          <input id="sei" name="sei" class="input" placeholder="0000000-00.0000.0.00.0000" value="<?= h($contrato['sei']) ?>">
-        </div>
+<!-- Observações + Fonte/Grupo/SEI/Valor/Ação/Subação (igual ao formulario.php) -->
+<div class="md:col-span-4">
+  <label class="label" for="observacoes">Observações</label>
+  <textarea id="observacoes" name="observacoes"
+            class="input min-h-[189px]"
+            placeholder="Observações gerais..."><?= h($contrato['observacoes'] ?? '') ?></textarea>
+</div>
 
-        <!-- L4: Valor do Contrato | Ação | Subação -->
-        <div class="md:col-span-4">
-  <label class="label" for="valor_total">Valor Total do Contrato *</label>
-  <input id="valor_total" name="valor_total"
-         class="input moeda moeda-total"
-         placeholder="R$ 0,00" inputmode="numeric"
-         value="<?= brl_input($contrato['valor_total']) ?>">
-      </div>
-        <div class="md:col-span-4">
-          <label class="label" for="acao">Ação</label>
-          <select id="acao" name="acao" class="input select">
-            <option value="">Selecione...</option>
-            <option <?= selected_val($contrato['acao'],'2904 - Formulação e Promoção da Política de Regularização Fundiária') ?>>2904 - Formulação e Promoção da Política de Regularização Fundiária</option>
-            <option <?= selected_val($contrato['acao'],'2928 - Conservação do Patrimonio Público na Companhia Estadual de Habitação e Obras - CHEAB') ?>>2928 - Conservação do Patrimonio Público na Companhia Estadual de Habitação e Obras - CHEAB</option>
-            <option <?= selected_val($contrato['acao'],'2998 - Encargos Gerais da Companhia Estadual de Habitação e Obras - CEHAB') ?>>2998 - Encargos Gerais da Companhia Estadual de Habitação e Obras - CEHAB</option>
-            <option <?= selected_val($contrato['acao'],'3902 - Fomento e Apoio ao Conselho Estaudal de Habitação de Interesse Social - CEHAB') ?>>3902 - Fomento e Apoio ao Conselho Estaudal de Habitação de Interesse Social - CEHAB</option>
-            <option <?= selected_val($contrato['acao'],'3927 - Manutenção da Ouvidoria da Companhia Estadual de Habitação e Obras - CEHAB') ?>>3927 - Manutenção da Ouvidoria da Companhia Estadual de Habitação e Obras - CEHAB</option>
-            <option <?= selected_val($contrato['acao'],'4058 - Ampliação da Oferta e Requalificação de Habitação de Interesse Social') ?>>4058 - Ampliação da Oferta e Requalificação de Habitação de Interesse Social</option>
-            <option <?= selected_val($contrato['acao'],'4300 - Execução de Obras de Infraestrutura e de Urbanização') ?>>4300 - Execução de Obras de Infraestrutura e de Urbanização</option>
-            <option <?= selected_val($contrato['acao'],'4301 - Pesquisa e Assessoria Técnica para Habitação de Interesse Social') ?>>4301 - Pesquisa e Assessoria Técnica para Habitação de Interesse Social</option>
-            <option <?= selected_val($contrato['acao'],'4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB') ?>>4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB</option>
-            <option <?= selected_val($contrato['acao'],'4587 - Contribuições Patronais da CEHAB') ?>>4587 - Contribuições Patronais da CEHAB</option>
-            <option <?= selected_val($contrato['acao'],'4613 - Encargos com o PIS e o COFINS da Companhia Estadual de Habitação e Obras - CEHAB') ?>>4613 - Encargos com o PIS e o COFINS da Companhia Estadual de Habitação e Obras - CEHAB</option>
-            <option value="XXXX - Destaque" <?= selected_val($contrato['subacao'],'XXXX - Destaque') ?>>
-              XXXX - Destaque
-            </option>
+<div class="md:col-span-8">
+  <div class="grid md:grid-cols-8 gap-x-5 gap-y-1.5">
 
-          </select>
-        </div>
-        <div class="md:col-span-4">
-          <label class="label" for="subacao">Subação</label>
-          <select id="subacao" name="subacao" class="input select">
-            <option value="">Selecione...</option>
-            <option <?= selected_val($contrato['subacao'],'0000 - Outras Medidas') ?>>0000 - Outras Medidas</option>
-            <option <?= selected_val($contrato['subacao'],'0055 - Programa Minha Casa (Operações Coletivas, CAIC, FNHIS e PSH) - Conclusão da construção de moradias') ?>>0055 - Programa Minha Casa (Operações Coletivas, CAIC, FNHIS e PSH) - Conclusão da construção de moradias</option>
-            <option <?= selected_val($contrato['subacao'],'0865 - Operacionalização do Programa Minha Casa Minha Vida') ?>>0865 - Operacionalização do Programa Minha Casa Minha Vida</option>
+    <div class="md:col-span-4">
+      <label class="label" for="fonte">Fonte</label>
+      <select id="fonte" name="fonte" class="input select">
+        <option value="">Selecione...</option>
+        <option value="0500 - (Tesouro do Estado)" <?= selected_val($contrato['fonte'] ?? '', '0500 - (Tesouro do Estado)') ?>>0500 - (Tesouro do Estado)</option>
+        <option value="0700 - (Repasse de Convênio)" <?= selected_val($contrato['fonte'] ?? '', '0700 - (Repasse de Convênio)') ?>>0700 - (Repasse de Convênio)</option>
+        <option value="0754 - (Operação de Crédito)" <?= selected_val($contrato['fonte'] ?? '', '0754 - (Operação de Crédito)') ?>>0754 - (Operação de Crédito)</option>
+        <option value="XXXX - Destaque" <?= selected_val($contrato['fonte'] ?? '', 'XXXX - Destaque') ?>>XXXX - Destaque</option>
+      </select>
+    </div>
+
+    <div class="md:col-span-4">
+      <label class="label" for="grupo">Grupo</label>
+      <select id="grupo" name="grupo" class="input select">
+        <option value="">Selecione...</option>
+        <option value="1 - Pessoal" <?= selected_val($contrato['grupo_despesa'] ?? '', '1 - Pessoal') ?>>1 - Pessoal</option>
+        <option value="3 - Despesa Corrente" <?= selected_val($contrato['grupo_despesa'] ?? '', '3 - Despesa Corrente') ?>>3 - Despesa Corrente</option>
+        <option value="4 - Investimentos" <?= selected_val($contrato['grupo_despesa'] ?? '', '4 - Investimentos') ?>>4 - Investimentos</option>
+      </select>
+    </div>
+
+    <div class="md:col-span-4">
+      <label class="label" for="sei">Número do SEI</label>
+      <input id="sei" name="sei" class="input"
+             placeholder="0000000-00.0000.0.00.0000"
+             value="<?= h($contrato['sei'] ?? '') ?>">
+    </div>
+
+    <div class="md:col-span-4">
+      <label class="label" for="valor_total">Valor Total do Contrato *</label>
+      <input id="valor_total" name="valor_total"
+             class="input moeda moeda-total"
+             placeholder="R$ 0,00" inputmode="numeric"
+             value="<?= brl_input($contrato['valor_total'] ?? 0) ?>">
+    </div>
+
+    <div class="md:col-span-4">
+      <label class="label" for="acao">Ação</label>
+      <select id="acao" name="acao" class="input select">
+        <option value="">Selecione...</option>
+
+        <option value="XXXX - Destaque" <?= selected_val($contrato['acao'] ?? '', 'XXXX - Destaque') ?>>XXXX - Destaque</option>
+        <option value="2904 - Formulação e Promoção da Política de Regularização Fundiária" <?= selected_val($contrato['acao'] ?? '', '2904 - Formulação e Promoção da Política de Regularização Fundiária') ?>>2904 - Formulação e Promoção da Política de Regularização Fundiária</option>
+        <option value="2998 - Encargos Gerais da Companhia Estadual de Habitação e Obras - CEHAB" <?= selected_val($contrato['acao'] ?? '', '2998 - Encargos Gerais da Companhia Estadual de Habitação e Obras - CEHAB') ?>>2998 - Encargos Gerais da Companhia Estadual de Habitação e Obras - CEHAB</option>
+        <option value="3902 - Fomento e Apoio ao Conselho Estaudal de Habitação de Interesse Social - CEHAB" <?= selected_val($contrato['acao'] ?? '', '3902 - Fomento e Apoio ao Conselho Estaudal de Habitação de Interesse Social - CEHAB') ?>>3902 - Fomento e Apoio ao Conselho Estaudal de Habitação de Interesse Social - CEHAB</option>
+        <option value="3927 - Manutenção da Ouvidoria da Companhia Estadual de Habitação e Obras - CEHAB" <?= selected_val($contrato['acao'] ?? '', '3927 - Manutenção da Ouvidoria da Companhia Estadual de Habitação e Obras - CEHAB') ?>>3927 - Manutenção da Ouvidoria da Companhia Estadual de Habitação e Obras - CEHAB</option>
+        <option value="4058 - Ampliação da Oferta e Requalificação de Habitação de Interesse Social" <?= selected_val($contrato['acao'] ?? '', '4058 - Ampliação da Oferta e Requalificação de Habitação de Interesse Social') ?>>4058 - Ampliação da Oferta e Requalificação de Habitação de Interesse Social</option>
+        <option value="4300 - Execução de Obras de Infraestrutura e de Urbanização" <?= selected_val($contrato['acao'] ?? '', '4300 - Execução de Obras de Infraestrutura e de Urbanização') ?>>4300 - Execução de Obras de Infraestrutura e de Urbanização</option>
+        <option value="4301 - Pesquisa e Assessoria Técnica para Habitação de Interesse Social" <?= selected_val($contrato['acao'] ?? '', '4301 - Pesquisa e Assessoria Técnica para Habitação de Interesse Social') ?>>4301 - Pesquisa e Assessoria Técnica para Habitação de Interesse Social</option>
+        <option value="4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB" <?= selected_val($contrato['acao'] ?? '', '4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB') ?>>4354 - Gestão das Atividades da Companhia Estadual de Habitação e Obras - CEHAB</option>
+        <option value="4587 - Contribuições Patronais da CEHAB" <?= selected_val($contrato['acao'] ?? '', '4587 - Contribuições Patronais da CEHAB') ?>>4587 - Contribuições Patronais da CEHAB</option>
+        <option value="4613 - Encargos com o PIS e o COFINS da Companhia Estadual de Habitação e Obras - CEHAB" <?= selected_val($contrato['acao'] ?? '', '4613 - Encargos com o PIS e o COFINS da Companhia Estadual de Habitação e Obras - CEHAB') ?>>4613 - Encargos com o PIS e o COFINS da Companhia Estadual de Habitação e Obras - CEHAB</option>
+      </select>
+    </div>
+
+    <div class="md:col-span-4">
+      <label class="label" for="subacao">Subação</label>
+      <select id="subacao" name="subacao" class="input select">
+        <option value="">Selecione...</option>
+
+        <option value="XXXX - Destaque" <?= selected_val($contrato['acao'],'XXXX - Destaque') ?>>
+        <option value="0000 - Outras Medidas" <?= selected_val($contrato['subacao'] ?? '', '0000 - Outras Medidas') ?>>0000 - Outras Medidas</option>
+
+        <option value="0055 - Programa Minha Casa (Operações Coletivas, CAIC, FNHIS e PSH) - Conclusão da construção de moradias"
+          <?= selected_val($contrato['subacao'] ?? '', '0055 - Programa Minha Casa (Operações Coletivas, CAIC, FNHIS e PSH) - Conclusão da construção de moradias') ?>>
+          0055 - Programa Minha Casa (Operações Coletivas, CAIC, FNHIS e PSH) - Conclusão da construção de moradias
+        </option>
+
+        <option value="0865 - Operacionalização do Programa Minha Casa Minha Vida"
+          <?= selected_val($contrato['subacao'] ?? '', '0865 - Operacionalização do Programa Minha Casa Minha Vida') ?>>
+          0865 - Operacionalização do Programa Minha Casa Minha Vida
+        </option>
             <option <?= selected_val($contrato['subacao'],'1163 - Acompanhamento do cadastro de famílias beneficiadas pelo auxílio moradia ') ?>>1163 - Acompanhamento do cadastro de famílias beneficiadas pelo auxílio moradia </option>
             <option <?= selected_val($contrato['subacao'],'1399 - Execução de obras de infraestrutura e construção de unidades habitacionais na comunidade de Escorregou Tá Dentro (Afogrados - Recife)') ?>>1399 - Execução de obras de infraestrutura e construção de unidades habitacionais na comunidade de Escorregou Tá Dentro (Afogrados - Recife)</option>
             <option <?= selected_val($contrato['subacao'],'1400 - Execução de obras de infraestrutura e construção de unidades habitacionais na comunidade de Mulheres de Tejucupapo (Iputinga - Recife)') ?>>1400 - Execução de obras de infraestrutura e construção de unidades habitacionais na comunidade de Mulheres de Tejucupapo (Iputinga - Recife)</option>
@@ -390,8 +411,11 @@ foreach ($mesCampos as $c) {
             <option <?= selected_val($contrato['subacao'],'B669 - Pagamento de apenados em processo de ressocialização na CEHAB') ?>>B669 - Pagamento de apenados em processo de ressocialização na CEHAB</option>
             <option <?= selected_val($contrato['subacao'],'B670 - Prestação de serviços de segurança pessoal e patrimonial na CEHAB ') ?>>B670 - Prestação de serviços de segurança pessoal e patrimonial na CEHAB </option>
             <option <?= selected_val($contrato['subacao'],'XXXX - Destaque') ?>>XXXX - Destaque</option>
-          </select>
-        </div>
+      </select>
+    </div>
+
+  </div>
+</div>
 
         <!-- L5: Ficha Financeira | Macro Tema | Priorização | É Prorrogável? -->
         <div class="md:col-span-4">

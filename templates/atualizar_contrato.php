@@ -71,6 +71,30 @@ function bool_from_label($v) {
   return null;
 }
 
+function norm_str($v) {
+  $v = (string)($v ?? '');
+  $v = trim($v);
+  return $v === '' ? null : $v;
+}
+
+function norm_num2($v) {
+  // aceita string "1234.56" ou float
+  if ($v === null || $v === '') return 0.00;
+  return round((float)$v, 2);
+}
+
+function changed_num($a, $b) {
+  return abs(norm_num2($a) - norm_num2($b)) > 0.004; // tolerância centavos
+}
+
+function changed_str($a, $b) {
+  return norm_str($a) !== norm_str($b);
+}
+
+function changed_int($a, $b) {
+  return (int)($a ?? 0) !== (int)($b ?? 0);
+}
+
 // ------ inputs ------
 $tema_custo       = $_POST['tema_custo']        ?? '';
 $setor            = $_POST['setor']             ?? '';
@@ -79,13 +103,13 @@ $objeto           = $_POST['objeto']            ?? '';
 $status           = $_POST['status']            ?? '';
 $numero_contrato  = $_POST['numero_contrato']   ?? '';
 $credor           = $_POST['credor']            ?? '';
-$vigencia_fim_txt = trim((string)($_POST['vigencia'] ?? '')); // TEXTO LIVRE
+$vigencia_fim_txt = trim((string)($_POST['vigencia'] ?? '')); 
 $dea_label        = $_POST['dea']               ?? '';
 $reajuste_label   = $_POST['reajuste']          ?? '';
 $fonte            = $_POST['fonte']             ?? '';
 $grupo            = $_POST['grupo']             ?? '';
 $sei              = $_POST['sei']               ?? '';
-$valor_total_str  = $_POST['valor_total_contrato'] ?? '0';
+$valor_total_str  = $_POST['valor_total'] ?? '0';
 $acao             = $_POST['acao']              ?? '';
 $subacao          = $_POST['subacao']           ?? '';
 $ficha_financeira = $_POST['ficha_financeira']  ?? '';
@@ -108,6 +132,96 @@ for ($i = 0; $i < 12; $i++) {
   $v = isset($mesesPost[$i]) ? parse_brl($mesesPost[$i]) : 0.0;
   $mesValsDb[$i] = number_format($v, 2, '.', '');
 }
+
+// usuário editor
+$editorNome  = $_SESSION['usuario']['nome']  ?? 'usuário';
+$editorLogin = $_SESSION['usuario']['login'] ?? '';
+
+// carrega estado anterior
+$stmtOld = $poa->prepare("SELECT * FROM novo_contrato WHERE id = ?");
+$stmtOld->bind_param('i', $id);
+$stmtOld->execute();
+$oldRes = $stmtOld->get_result();
+$old = $oldRes ? $oldRes->fetch_assoc() : null;
+if (!$old) exit('Contrato não encontrado para auditoria.');
+
+// monte um array "novo" já no formato do banco (mesmo que você vai salvar)
+$new = [
+  'tema_custo'       => $tema_custo,
+  'setor'            => $setor,
+  'gestor'           => $gestor,
+  'objeto'           => $objeto,
+  'status_contrato'  => $status,
+  'numero_contrato'  => $numero_contrato,
+  'credor'           => $credor,
+  'vigencia_fim'     => ($vigencia_fim_txt === '' ? null : $vigencia_fim_txt),
+  'observacoes'      => $observacoes,
+  'dea'              => ($dea === null ? 0 : $dea),
+  'reajuste'         => ($reajuste === null ? 0 : $reajuste),
+  'fonte'            => $fonte,
+  'grupo_despesa'    => $grupo,
+  'sei'              => $sei,
+  'valor_total'      => $valor_total_db,
+  'acao'             => $acao,
+  'subacao'          => $subacao,
+  'ficha_financeira' => $ficha_financeira,
+  'macro_tema'       => $macro_tema,
+  'priorizacao'      => $priorizacao,
+  'prorrogavel'      => ($prorrogavel === null ? 0 : $prorrogavel),
+  'janeiro'          => $mesValsDb[0],
+  'fevereiro'        => $mesValsDb[1],
+  'marco'            => $mesValsDb[2],
+  'abril'            => $mesValsDb[3],
+  'maio'             => $mesValsDb[4],
+  'junho'            => $mesValsDb[5],
+  'julho'            => $mesValsDb[6],
+  'agosto'           => $mesValsDb[7],
+  'setembro'         => $mesValsDb[8],
+  'outubro'          => $mesValsDb[9],
+  'novembro'         => $mesValsDb[10],
+  'dezembro'         => $mesValsDb[11],
+];
+
+// compara e gera diffs
+$diffs = [];
+
+$cmpStr = ['tema_custo','setor','gestor','objeto','status_contrato','numero_contrato','credor','vigencia_fim','observacoes','fonte','grupo_despesa','sei','acao','subacao','ficha_financeira','macro_tema','priorizacao'];
+foreach ($cmpStr as $k) {
+  if (changed_str($old[$k] ?? null, $new[$k] ?? null)) {
+    $diffs[] = ['campo'=>$k, 'antes'=>$old[$k] ?? null, 'depois'=>$new[$k] ?? null];
+  }
+}
+
+$cmpInt = ['dea','reajuste','prorrogavel'];
+foreach ($cmpInt as $k) {
+  if (changed_int($old[$k] ?? 0, $new[$k] ?? 0)) {
+    $diffs[] = ['campo'=>$k, 'antes'=>(int)($old[$k] ?? 0), 'depois'=>(int)($new[$k] ?? 0)];
+  }
+}
+
+if (changed_num($old['valor_total'] ?? 0, $new['valor_total'] ?? 0)) {
+  $diffs[] = ['campo'=>'valor_total', 'antes'=>$old['valor_total'] ?? 0, 'depois'=>$new['valor_total'] ?? 0];
+}
+
+$cmpMes = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+foreach ($cmpMes as $k) {
+  if (changed_num($old[$k] ?? 0, $new[$k] ?? 0)) {
+    $diffs[] = ['campo'=>$k, 'antes'=>$old[$k] ?? 0, 'depois'=>$new[$k] ?? 0];
+  }
+}
+
+// salva notificação (só se houve mudança)
+if (!empty($diffs)) {
+  $changesJson = json_encode($diffs, JSON_UNESCAPED_UNICODE);
+
+  $stmtN = $poa->prepare("
+    INSERT INTO notificacoes_edicao (contrato_id, editor_login, editor_nome, changes_json)
+    VALUES (?, ?, ?, ?)
+  ");
+  $stmtN->bind_param('isss', $id, $editorLogin, $editorNome, $changesJson);
+  $stmtN->execute();
+}
+
 
 $sql = "
   UPDATE novo_contrato

@@ -33,6 +33,27 @@ if (!$isAdmin) {
     $types   .= "s";
 }
 
+$isBruno = ($loginCheck === 'bruno.passavante' || $nomeCheck === 'bruno passavante de oliveira');
+
+// notificações do Bruno (se for ele)
+$notifCount = 0;
+$notifs = [];
+
+if ($isBruno) {
+  $r1 = $poa->query("SELECT COUNT(*) AS c FROM notificacoes_edicao WHERE lida = 0");
+  $notifCount = (int)(($r1 && ($row=$r1->fetch_assoc())) ? $row['c'] : 0);
+
+  $r2 = $poa->query("
+    SELECT n.*, c.codigo_poa, c.numero_contrato
+    FROM notificacoes_edicao n
+    LEFT JOIN novo_contrato c ON c.id = n.contrato_id
+    ORDER BY n.created_at DESC
+    LIMIT 30
+  ");
+  $notifs = $r2 ? $r2->fetch_all(MYSQLI_ASSOC) : [];
+}
+
+
 if ($busca !== '') {
     $where .= " AND (numero_contrato LIKE ? OR credor LIKE ? OR objeto LIKE ?)";
     $like   = "%{$busca}%";
@@ -233,6 +254,23 @@ function nome_curto($nomeCompleto) {
           <span class="text-slate-900 font-semibold leading-none">POA - Planejamento Orçamentário Anual</span>
           <span class="text-xs text-slate-500 leading-none">Painel inicial</span>
         </div>
+        <?php if ($isBruno): ?>
+          <button id="btnBell"
+            class="relative inline-flex items-center justify-center w-10 h-10 rounded-xl border border-slate-300 bg-white text-slate-700 shadow-sm hover:bg-slate-50"
+            title="Notificações">
+            <!-- bell icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+              <path d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22Zm7-6V11a7 7 0 1 0-14 0v5l-2 2v1h18v-1l-2-2Z"/>
+            </svg>
+
+            <?php if ($notifCount > 0): ?>
+              <span class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-600 text-white text-[11px] leading-[18px] text-center font-semibold">
+                <?= $notifCount > 99 ? '99+' : $notifCount ?>
+              </span>
+            <?php endif; ?>
+          </button>
+        <?php endif; ?>
+
       </div>
 
 
@@ -260,6 +298,8 @@ function nome_curto($nomeCompleto) {
           </svg>
           Sair
         </a>
+
+        
 
         <a href="suporte.php"
         class="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
@@ -475,35 +515,134 @@ function nome_curto($nomeCompleto) {
 
   </main>
 
-  <script>
-    document.getElementById('btnLimpar')?.addEventListener('click', () => {
-      window.location.href = 'home.php';
-    });
+<?php if ($isBruno): ?>
+  <div id="notifModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40">
+    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200">
+        <h3 class="text-slate-900 font-semibold">Alterações recentes</h3>
+        <button id="btnCloseNotif" class="text-slate-500 hover:text-slate-700">✕</button>
+      </div>
 
-    document.getElementById('btnPesquisar')?.addEventListener('click', () => {
-      const i = document.getElementById('busca');
-      const q = i ? i.value.trim() : '';
-      const url = new URL(window.location.href);
-      if (q) {
-        url.searchParams.set('q', q);
-      } else {
-        url.searchParams.delete('q');
-      }
-      window.location.href = url.toString();
-    });
+      <div class="max-h-[70vh] overflow-y-auto p-4 space-y-3">
+        <?php if (empty($notifs)): ?>
+          <div class="rounded-xl bg-slate-50 border border-slate-200 p-4 text-sm text-slate-600">
+            Nenhuma notificação ainda.
+          </div>
+        <?php else: ?>
+          <?php foreach ($notifs as $n): ?>
+            <?php
+              $dt = !empty($n['created_at']) ? (new DateTime($n['created_at']))->format('d/m/Y H:i') : '';
+              $changes = [];
+              if (!empty($n['changes_json'])) {
+                $tmp = json_decode($n['changes_json'], true);
+                if (is_array($tmp)) $changes = $tmp;
+              }
+              $titulo = ($n['codigo_poa'] ?: ('ID '.$n['contrato_id']));
+              $numContrato = $n['numero_contrato'] ?? '';
+            ?>
+            <div class="rounded-xl border border-slate-200 p-4 <?= ((int)$n['lida']===0 ? 'bg-amber-50/40' : 'bg-white') ?>">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <div class="text-sm font-semibold text-slate-900">
+                    <?= h($titulo) ?> <?= $numContrato ? ('• ' . h($numContrato)) : '' ?>
+                  </div>
+                  <div class="text-xs text-slate-600 mt-1">
+                    <?= h($dt) ?> • por <strong><?= h($n['editor_nome']) ?></strong> (<?= h($n['editor_login']) ?>)
+                    <?= ((int)$n['lida']===0 ? ' • <span class="text-red-600 font-semibold">NOVA</span>' : '') ?>
+                  </div>
+                </div>
+              </div>
 
-    document.getElementById('busca')?.addEventListener('keyup', (e) => {
-      if (e.key === 'Enter') {
-        document.getElementById('btnPesquisar')?.click();
-      }
-    });
+              <div class="mt-3 text-sm text-slate-700 space-y-2">
+                <?php foreach ($changes as $c): ?>
+                  <div class="rounded-lg bg-white border border-slate-200 px-3 py-2">
+                    <div class="text-xs text-slate-500 font-semibold uppercase"><?= h($c['campo'] ?? '') ?></div>
+                    <div class="text-sm">
+                      <span class="text-slate-500">antes:</span> <?= h($c['antes'] ?? '') ?>
+                      <span class="mx-2 text-slate-300">→</span>
+                      <span class="text-slate-500">depois:</span> <?= h($c['depois'] ?? '') ?>
+                    </div>
+                  </div>
+                <?php endforeach; ?>
+              </div>
+            </div>
+          <?php endforeach; ?>
+        <?php endif; ?>
+      </div>
 
-    function confirmDelete(id) {
-      if (confirm('Deseja realmente excluir este contrato?')) {
-        // depois você troca essa URL pelo seu endpoint real de exclusão
-        window.location.href = 'excluir_contrato.php?id=' + encodeURIComponent(id);
-      }
-    }
-  </script>
+      <div class="px-5 py-4 border-t border-slate-200 flex items-center justify-end gap-2">
+        <button id="btnMarkRead"
+          class="rounded-xl bg-blue-600 text-white text-sm font-medium px-4 py-2 hover:bg-blue-700">
+          Marcar tudo como lido
+        </button>
+      </div>
+    </div>
+  </div>
+<?php endif; ?>
+
+
 </body>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const btnBell = document.getElementById('btnBell');
+  const modal = document.getElementById('notifModal');
+  const btnClose = document.getElementById('btnCloseNotif');
+  const btnMarkRead = document.getElementById('btnMarkRead');
+
+  function openModal() {
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  }
+  function closeModal() {
+    if (!modal) return;
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+  }
+
+  btnBell?.addEventListener('click', openModal);
+  btnClose?.addEventListener('click', closeModal);
+
+  modal?.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  btnMarkRead?.addEventListener('click', async () => {
+    try {
+      const r = await fetch('marcar_notificacoes_lidas.php', { method: 'POST' });
+      const j = await r.json();
+      if (j.ok) window.location.reload();
+    } catch (e) {
+      alert('Erro ao marcar como lido.');
+    }
+  });
+
+  // seus outros handlers
+  document.getElementById('btnLimpar')?.addEventListener('click', () => {
+    window.location.href = 'home.php';
+  });
+
+  document.getElementById('btnPesquisar')?.addEventListener('click', () => {
+    const i = document.getElementById('busca');
+    const q = i ? i.value.trim() : '';
+    const url = new URL(window.location.href);
+    if (q) url.searchParams.set('q', q);
+    else url.searchParams.delete('q');
+    window.location.href = url.toString();
+  });
+
+  document.getElementById('busca')?.addEventListener('keyup', (e) => {
+    if (e.key === 'Enter') document.getElementById('btnPesquisar')?.click();
+  });
+});
+
+function confirmDelete(id) {
+  if (confirm('Deseja realmente excluir este contrato?')) {
+    window.location.href = 'excluir_contrato.php?id=' + encodeURIComponent(id);
+  }
+}
+</script>
+
+
 </html>
