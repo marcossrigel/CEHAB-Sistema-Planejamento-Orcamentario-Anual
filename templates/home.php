@@ -537,9 +537,19 @@ function nome_curto($nomeCompleto) {
                 $tmp = json_decode($n['changes_json'], true);
                 if (is_array($tmp)) $changes = $tmp;
               }
-              $titulo = ($n['codigo_poa'] ?: ('ID '.$n['contrato_id']));
-              $numContrato = $n['numero_contrato'] ?? '';
+
+              // Montagem do título
+              if (!empty($n['codigo_poa'])) {
+                $titulo = 'Código POA: ' . $n['codigo_poa'];
+              } else {
+                $titulo = 'ID ' . $n['contrato_id'];
+              }
+
+              $numContrato = !empty($n['numero_contrato']) 
+                  ? 'Nº Contrato: ' . $n['numero_contrato'] 
+                  : '';
             ?>
+
             <div class="rounded-xl border border-slate-200 p-4 <?= ((int)$n['lida']===0 ? 'bg-amber-50/40' : 'bg-white') ?>">
               <div class="flex items-start justify-between gap-3">
                 <div>
