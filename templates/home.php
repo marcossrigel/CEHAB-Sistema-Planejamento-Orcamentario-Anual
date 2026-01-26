@@ -47,6 +47,7 @@ if ($isBruno) {
     SELECT n.*, c.codigo_poa, c.numero_contrato
     FROM notificacoes_edicao n
     LEFT JOIN novo_contrato c ON c.id = n.contrato_id
+    WHERE n.lida = 0
     ORDER BY n.created_at DESC
     LIMIT 30
   ");
@@ -273,6 +274,17 @@ function nome_curto($nomeCompleto) {
 
       </div>
 
+     <?php if ($isBruno): ?>
+        <a href="notificacoes_arquivadas.php"
+          class="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+          title="Ver notificações arquivadas">
+          <!-- ícone de caixa/arquivo -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
+            <path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2H3V7Zm0 4h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-8Zm6 2v2h6v-2H9Z"/>
+          </svg>
+          Arquivados
+        </a>
+      <?php endif; ?>
 
       <a href="relatorio_poa.php"
           class="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-white text-sm font-medium shadow hover:bg-emerald-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
