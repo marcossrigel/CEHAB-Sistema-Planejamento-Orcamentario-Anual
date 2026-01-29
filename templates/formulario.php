@@ -1,4 +1,6 @@
-<?php?>
+<?php
+if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+?>
 <!doctype html>
 <html lang="pt-br">
 <head>
@@ -34,6 +36,20 @@
   </header>
 
   <main class="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-8">
+    <?php
+    if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+    if (!empty($_SESSION['flash_error'])):
+    ?>
+      <div class="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8 mt-6">
+        <div class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+          <strong>Erro:</strong> <?= htmlspecialchars($_SESSION['flash_error'], ENT_QUOTES, 'UTF-8') ?>
+        </div>
+      </div>
+    <?php
+      unset($_SESSION['flash_error']);
+    endif;
+    ?>
+
     <form class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-8" action="salvar_contrato.php" method="post" id="formContrato">
       <div class="flex items-center justify-between">
         <h1 class="text-xl font-semibold text-slate-900">Formulário POA 2025</h1>

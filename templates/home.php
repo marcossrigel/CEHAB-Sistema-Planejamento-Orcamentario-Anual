@@ -39,22 +39,6 @@ $isBruno = ($loginCheck === 'bruno.passavante' || $nomeCheck === 'bruno passavan
 $notifCount = 0;
 $notifs = [];
 
-if ($isBruno) {
-  $r1 = $poa->query("SELECT COUNT(*) AS c FROM notificacoes_edicao WHERE lida = 0");
-  $notifCount = (int)(($r1 && ($row=$r1->fetch_assoc())) ? $row['c'] : 0);
-
-  $r2 = $poa->query("
-    SELECT n.*, c.codigo_poa, c.numero_contrato
-    FROM notificacoes_edicao n
-    LEFT JOIN novo_contrato c ON c.id = n.contrato_id
-    WHERE n.lida = 0
-    ORDER BY n.created_at DESC
-    LIMIT 30
-  ");
-  $notifs = $r2 ? $r2->fetch_all(MYSQLI_ASSOC) : [];
-}
-
-
 if ($busca !== '') {
     $where .= " AND (numero_contrato LIKE ? OR credor LIKE ? OR objeto LIKE ?)";
     $like   = "%{$busca}%";
@@ -64,36 +48,130 @@ if ($busca !== '') {
     $types   .= "sss";
 }
 
-$sql = "
-  SELECT
-    id,
-    codigo_poa,
-    usuario_cehab,
-    objeto,
-    status_contrato,
-    numero_contrato,
-    credor,
-    dea,
-    reajuste,
-    ficha_financeira,
-    priorizacao,
-    created_at,
-    janeiro,
-    fevereiro,
-    marco,
-    abril,
-    maio,
-    junho,
-    julho,
-    agosto,
-    setembro,
-    outubro,
-    novembro,
-    dezembro
-  FROM novo_contrato
-  WHERE $where
-  ORDER BY created_at DESC
-";
+// ==================== SQL PRINCIPAL + SOMA ====================
+
+// Bruno vê a "pilha": contrato_modificado + novo_contrato
+if ($isBruno) {
+
+  $sql = "
+    SELECT
+      id,
+      codigo_poa,
+      usuario_cehab,
+      objeto,
+      status_contrato,
+      numero_contrato,
+      credor,
+      dea,
+      reajuste,
+      ficha_financeira,
+      priorizacao,
+      created_at,
+      janeiro, fevereiro, marco, abril, maio, junho, julho, agosto, setembro, outubro, novembro, dezembro
+    FROM (
+      SELECT
+        id,
+        codigo_poa       COLLATE utf8mb4_general_ci AS codigo_poa,
+        usuario_cehab    COLLATE utf8mb4_general_ci AS usuario_cehab,
+        objeto           COLLATE utf8mb4_general_ci AS objeto,
+        status_contrato  COLLATE utf8mb4_general_ci AS status_contrato,
+        numero_contrato  COLLATE utf8mb4_general_ci AS numero_contrato,
+        credor           COLLATE utf8mb4_general_ci AS credor,
+        dea, reajuste,
+        ficha_financeira COLLATE utf8mb4_general_ci AS ficha_financeira,
+        priorizacao      COLLATE utf8mb4_general_ci AS priorizacao,
+        created_at,
+        janeiro, fevereiro, marco, abril, maio, junho, julho, agosto, setembro, outubro, novembro, dezembro
+      FROM contrato_modificado
+
+      UNION ALL
+
+      SELECT
+        id,
+        codigo_poa       COLLATE utf8mb4_general_ci,
+        usuario_cehab    COLLATE utf8mb4_general_ci,
+        objeto           COLLATE utf8mb4_general_ci,
+        status_contrato  COLLATE utf8mb4_general_ci,
+        numero_contrato  COLLATE utf8mb4_general_ci,
+        credor           COLLATE utf8mb4_general_ci,
+        dea, reajuste,
+        ficha_financeira COLLATE utf8mb4_general_ci,
+        priorizacao      COLLATE utf8mb4_general_ci,
+        created_at,
+        janeiro, fevereiro, marco, abril, maio, junho, julho, agosto, setembro, outubro, novembro, dezembro
+      FROM novo_contrato
+    ) base
+    WHERE $where
+    ORDER BY created_at DESC, id DESC
+  ";
+
+  $sumSql = "
+    SELECT
+      COALESCE(SUM(janeiro),   0) AS jan,
+      COALESCE(SUM(fevereiro), 0) AS fev,
+      COALESCE(SUM(marco),     0) AS mar,
+      COALESCE(SUM(abril),     0) AS abr,
+      COALESCE(SUM(maio),      0) AS mai,
+      COALESCE(SUM(junho),     0) AS jun,
+      COALESCE(SUM(julho),     0) AS jul,
+      COALESCE(SUM(agosto),    0) AS ago,
+      COALESCE(SUM(setembro),  0) AS set_,
+      COALESCE(SUM(outubro),   0) AS out_,
+      COALESCE(SUM(novembro),  0) AS nov,
+      COALESCE(SUM(dezembro),  0) AS dez
+    FROM (
+      SELECT janeiro,fevereiro,marco,abril,maio,junho,julho,agosto,setembro,outubro,novembro,dezembro
+      FROM contrato_modificado
+
+      UNION ALL
+
+      SELECT janeiro,fevereiro,marco,abril,maio,junho,julho,agosto,setembro,outubro,novembro,dezembro
+      FROM novo_contrato
+    ) base
+    WHERE $where
+  ";
+
+} else {
+
+  $sql = "
+    SELECT
+      id,
+      codigo_poa,
+      usuario_cehab,
+      objeto,
+      status_contrato,
+      numero_contrato,
+      credor,
+      dea,
+      reajuste,
+      ficha_financeira,
+      priorizacao,
+      created_at,
+      janeiro, fevereiro, marco, abril, maio, junho, julho, agosto, setembro, outubro, novembro, dezembro
+    FROM novo_contrato
+    WHERE $where
+    ORDER BY created_at DESC, id DESC
+  ";
+
+  $sumSql = "
+    SELECT
+      COALESCE(SUM(janeiro),   0) AS jan,
+      COALESCE(SUM(fevereiro), 0) AS fev,
+      COALESCE(SUM(marco),     0) AS mar,
+      COALESCE(SUM(abril),     0) AS abr,
+      COALESCE(SUM(maio),      0) AS mai,
+      COALESCE(SUM(junho),     0) AS jun,
+      COALESCE(SUM(julho),     0) AS jul,
+      COALESCE(SUM(agosto),    0) AS ago,
+      COALESCE(SUM(setembro),  0) AS set_,
+      COALESCE(SUM(outubro),   0) AS out_,
+      COALESCE(SUM(novembro),  0) AS nov,
+      COALESCE(SUM(dezembro),  0) AS dez
+    FROM novo_contrato
+    WHERE $where
+  ";
+}
+
 
 $stmt = $poa->prepare($sql);
 if ($stmt === false) {
@@ -105,25 +183,6 @@ if ($params) {
 $stmt->execute();
 $res        = $stmt->get_result();
 $contratos  = $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
-
-// --------- SOMATÓRIO DOS MESES (para o cronograma) ---------
-$sumSql = "
-  SELECT
-    COALESCE(SUM(janeiro),   0) AS jan,
-    COALESCE(SUM(fevereiro), 0) AS fev,
-    COALESCE(SUM(marco),     0) AS mar,
-    COALESCE(SUM(abril),     0) AS abr,
-    COALESCE(SUM(maio),      0) AS mai,
-    COALESCE(SUM(junho),     0) AS jun,
-    COALESCE(SUM(julho),     0) AS jul,
-    COALESCE(SUM(agosto),    0) AS ago,
-    COALESCE(SUM(setembro),  0) AS set_,
-    COALESCE(SUM(outubro),   0) AS out_,
-    COALESCE(SUM(novembro),  0) AS nov,
-    COALESCE(SUM(dezembro),  0) AS dez
-  FROM novo_contrato
-  WHERE $where
-";
 
 $stmtSum = $poa->prepare($sumSql);
 if ($params) {
@@ -286,14 +345,48 @@ function nome_curto($nomeCompleto) {
         </a>
       <?php endif; ?>
 
-      <a href="relatorio_poa.php"
+      <!-- Relatórios (dropdown) -->
+      <div class="relative" id="relatoriosWrap">
+        <button type="button" id="btnRelatorios"
           class="inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2 text-white text-sm font-medium shadow hover:bg-emerald-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
-          title="Gerar relatório">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
-          <path d="M7 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9.828a2 2 0 0 0-.586-1.414l-4.828-4.828A2 2 0 0 0 12.172 3H7Zm5 2v4h4" />
-          <path d="M9 13h6v2H9zm0 4h4v2H9z" />
-        </svg> Gerar Relatório
-      </a>
+          aria-haspopup="menu" aria-expanded="false"
+          title="Relatórios">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
+            <path d="M7 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9.828a2 2 0 0 0-.586-1.414l-4.828-4.828A2 2 0 0 0 12.172 3H7Zm5 2v4h4" />
+            <path d="M9 13h6v2H9zm0 4h4v2H9z" />
+          </svg>
+          Relatórios
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 opacity-90">
+            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.17l3.71-3.94a.75.75 0 1 1 1.08 1.04l-4.24 4.5a.75.75 0 0 1-1.08 0l-4.24-4.5a.75.75 0 0 1 .02-1.06Z" clip-rule="evenodd" />
+          </svg>
+        </button>
+
+        <div id="menuRelatorios"
+          class="hidden absolute right-0 mt-2 w-64 rounded-xl border border-slate-200 bg-white shadow-lg overflow-hidden z-50">
+          
+          <a href="relatorio_poa.php"
+            class="flex items-center gap-2 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            Gerar Relatório (Base Original)
+          </a>
+
+          <?php if ($isBruno): ?>
+            <a href="relatorio_contrato_modificado.php"
+              class="flex items-center gap-2 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 border-t border-slate-100">
+              <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+              Relatório (Base alterada)
+              <span class="ml-auto text-[11px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-semibold">Bruno</span>
+            </a>
+          <?php endif; ?>
+
+          <a href="relatorio_previsualizacao.php<?= $busca !== '' ? ('?q=' . urlencode($busca)) : '' ?>"
+            class="flex items-center gap-2 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 border-b border-slate-100">
+            <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+            Gerar Relatório (Pré-visualização)
+          </a>
+
+        </div>
+      </div>
 
       <!-- Right / Actions -->
       <div class="flex items-center gap-3">
@@ -602,7 +695,6 @@ function nome_curto($nomeCompleto) {
   </div>
 <?php endif; ?>
 
-
 </body>
 
 <script>
@@ -640,7 +732,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // seus outros handlers
   document.getElementById('btnLimpar')?.addEventListener('click', () => {
     window.location.href = 'home.php';
   });
@@ -656,6 +747,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('busca')?.addEventListener('keyup', (e) => {
     if (e.key === 'Enter') document.getElementById('btnPesquisar')?.click();
+  });
+
+  // ✅ Dropdown Relatórios (AGORA dentro do DOMContentLoaded)
+  const btnRelatorios = document.getElementById('btnRelatorios');
+  const menuRelatorios = document.getElementById('menuRelatorios');
+  const relatoriosWrap = document.getElementById('relatoriosWrap');
+
+  function closeRelatoriosMenu() {
+    menuRelatorios?.classList.add('hidden');
+    btnRelatorios?.setAttribute('aria-expanded', 'false');
+  }
+
+  btnRelatorios?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isHidden = menuRelatorios.classList.contains('hidden');
+    if (isHidden) {
+      menuRelatorios.classList.remove('hidden');
+      btnRelatorios.setAttribute('aria-expanded', 'true');
+    } else {
+      closeRelatoriosMenu();
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!relatoriosWrap?.contains(e.target)) closeRelatoriosMenu();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeRelatoriosMenu();
   });
 });
 
