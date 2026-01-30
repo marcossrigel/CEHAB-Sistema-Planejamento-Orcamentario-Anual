@@ -418,6 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 }
 
+
 function aplicarRegraFonte() {
   if (autoLock) return;
 

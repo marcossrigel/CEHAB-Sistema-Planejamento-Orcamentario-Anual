@@ -1,6 +1,25 @@
 <?php
-if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+session_set_cookie_params(['path' => '/']);
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
+
+// protege a página
+if (empty($_SESSION['usuario'])) {
+    $_SESSION['flash_error'] = 'Sessão expirada. Faça login novamente.';
+    header('Location: /CEHAB-Sistema-Planejamento-Orcamentario-Anual/index.php');
+    exit;
+}
+
+$nomeUsuario  = $_SESSION['usuario']['nome']  ?? '';
+$loginUsuario = $_SESSION['usuario']['login'] ?? '';
+
+// ✅ limpa flash antigo ao entrar no formulário
+unset($_SESSION['flash_error']);
+
+$_SESSION['form_token'] = bin2hex(random_bytes(16));
 ?>
+
 <!doctype html>
 <html lang="pt-br">
 <head>
@@ -37,7 +56,6 @@ if (session_status() !== PHP_SESSION_ACTIVE) session_start();
 
   <main class="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8 py-8">
     <?php
-    if (session_status() !== PHP_SESSION_ACTIVE) session_start();
     if (!empty($_SESSION['flash_error'])):
     ?>
       <div class="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8 mt-6">
@@ -51,9 +69,17 @@ if (session_status() !== PHP_SESSION_ACTIVE) session_start();
     ?>
 
     <form class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-8" action="salvar_contrato.php" method="post" id="formContrato">
+      <input type="hidden" name="form_token" value="<?= htmlspecialchars($_SESSION['form_token']) ?>">
       <div class="flex items-center justify-between">
-        <h1 class="text-xl font-semibold text-slate-900">Formulário POA 2025</h1>
+        <h1 class="text-xl font-semibold text-slate-900">Formulário POA 2026</h1>
         <span class="text-xs text-slate-500">Campos marcados com * são obrigatórios</span>
+      </div>
+
+      <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+        <span class="text-slate-500">Responsável (usuario_cehab):</span>
+        <strong class="text-slate-900">
+          <?= htmlspecialchars($nomeUsuario, ENT_QUOTES, 'UTF-8') ?>
+        </strong>
       </div>
 
       <section class="grid grid-cols-1 md:grid-cols-12 gap-5">
@@ -546,7 +572,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) session_start();
 
       <div class="flex items-center justify-end gap-3 pt-2">
         <button type="button" onclick="history.back()" class="inline-flex items-center gap-2 rounded-xl border border-slate-300 px-4 py-2 text-slate-700 text-sm hover:bg-slate-50">Cancelar</button>
-        <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-white text-sm font-medium shadow hover:bg-blue-700">Salvar Contrato</button>
+        <button id="btnSalvar" type="submit" class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-white text-sm font-medium shadow hover:bg-blue-700">Salvar Contrato</button>
       </div>
     </form>
   </main>

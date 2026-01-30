@@ -1,28 +1,23 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+session_set_cookie_params(['path' => '/']);
 if (session_status() !== PHP_SESSION_ACTIVE) session_start();
 
-function voltar_com_erro($msg) {
-  $_SESSION['flash_error'] = $msg;
-  header('Location: formulario.php');
+require_once __DIR__ . '/../config.php';
+
+// valida token (1 envio só)
+$token = $_POST['form_token'] ?? '';
+if ($token === '' || empty($_SESSION['form_token']) || !hash_equals($_SESSION['form_token'], $token)) {
+  http_response_code(400);
+  echo "Requisição inválida ou repetida. Volte e tente novamente.";
   exit;
 }
+unset($_SESSION['form_token']); // consome
 
-// sessão precisa existir
-if (!isset($_SESSION['usuario'])) {
-  voltar_com_erro('Não foi possível identificar seu usuário (sessão expirada). Faça login novamente e tente salvar de novo.');
-}
 
-$nomeUsuario  = trim($_SESSION['usuario']['nome']  ?? '');
-$loginUsuario = trim($_SESSION['usuario']['login'] ?? '');
-
-if ($nomeUsuario === '' || $loginUsuario === '') {
-  voltar_com_erro('Não foi possível identificar seu usuário. Atualize a página e tente novamente. Se persistir, faça login novamente.');
-}
-
-// ✅ garante responsável vindo SEMPRE do servidor
-$usuario_cehab = $nomeUsuario;
-
-require_once __DIR__ . '/../config.php';
 
 function brl_to_decimal(?string $str): float {
   $str = (string)$str;
@@ -38,18 +33,10 @@ function bool_ptbr($v) {
   return null;
 }
 
-$nomeCheck  = mb_strtolower($nomeUsuario, 'UTF-8');
-$loginCheck = mb_strtolower($loginUsuario, 'UTF-8');
-
-$isBruno = ($loginCheck === 'bruno.passavante' || $nomeCheck === 'bruno passavante de oliveira');
-
-$tabelaDestino = 'novo_contrato';
-
-// -------------------- Vigência --------------------
 $vig_fim = trim((string)($_POST['vigencia'] ?? ''));
-$vig_fim = ($vig_fim === '') ? null : $vig_fim;
+if ($vig_fim === '') $vig_fim = null;
+$vig_fim = $vig_fim === '' ? null : $vig_fim;
 
-// -------------------- Meses --------------------
 $mes = $_POST['mes'] ?? [];
 $toDecimal = fn($i) => brl_to_decimal($mes[$i] ?? '0');
 
@@ -64,32 +51,30 @@ $temaSelecionado = $_POST['tema_custo'] ?? null;
 $codigo_poa = null;
 
 if (!empty($temaSelecionado)) {
+  // pega só o número antes do " - "
+  $temaCodigo = '';
   $parts = explode(' - ', $temaSelecionado, 2);
   $temaCodigo = trim($parts[0] ?? '');
 
   if ($temaCodigo !== '') {
-    // ✅ conta na TABELA DESTINO
-    $sqlCount = "SELECT COUNT(*) AS qtde FROM {$tabelaDestino} WHERE tema_custo = ?";
+    // conta quantos registros já existem com esse mesmo tema_custo
+    $sqlCount = "SELECT COUNT(*) AS qtde FROM novo_contrato WHERE tema_custo = ?";
     if ($stmtCount = $poa->prepare($sqlCount)) {
       $stmtCount->bind_param('s', $temaSelecionado);
       $stmtCount->execute();
       $resCount = $stmtCount->get_result();
       $rowCount = $resCount ? $resCount->fetch_assoc() : ['qtde' => 0];
-      $seq = (int)($rowCount['qtde'] ?? 0) + 1;
-
+      $seq = (int)($rowCount['qtde'] ?? 0) + 1; 
+      
       $codigo_poa = $temaCodigo . '.' . $seq;
     }
   }
 }
 
-// -------------------- Datas (varchar na sua tabela) --------------------
-$agora = date('Y-m-d H:i:s');
-
-// -------------------- Monta campos --------------------
 $campos = [
   'codigo_poa'       => $codigo_poa,
 
-  'usuario_cehab' => $usuario_cehab,
+  'usuario_cehab'    => $_SESSION['usuario']['nome'] ?? null,
   'tema_custo'       => $temaSelecionado,
   'setor'            => $_POST['setor'] ?? null,
   'gestor'           => $_POST['gestor'] ?? null,
@@ -112,20 +97,15 @@ $campos = [
   'priorizacao'      => $_POST['priorizacao'] ?? null,
   'prorrogavel'      => bool_ptbr($_POST['prorrogavel'] ?? null),
   'observacoes'      => $_POST['observacoes'] ?? null,
-
-  // ✅ garante no banco (pra ORDER BY pilha funcionar e ter updated_at)
-  'created_at'       => $agora,
-  'updated_at'       => $agora,
 ];
 
 foreach ($mesCampos as $i => $nomeMes) {
   $campos[$nomeMes] = $toDecimal($i);
 }
 
-// -------------------- INSERT dinâmico --------------------
 $cols = implode(',', array_map(fn($c) => "`$c`", array_keys($campos)));
 $placeholders = rtrim(str_repeat('?,', count($campos)), ',');
-$sql = "INSERT INTO `{$tabelaDestino}` ($cols) VALUES ($placeholders)";
+$sql = "INSERT INTO `novo_contrato` ($cols) VALUES ($placeholders)";
 
 $stmt = $poa->prepare($sql);
 if (!$stmt) {
@@ -136,23 +116,20 @@ if (!$stmt) {
 
 $types = '';
 $values = [];
-
-// ✅ ajuste: na sua tabela contrato_modificado o campo é valor_total_cont
 $numericos = array_merge(['valor_total'], $mesCampos);
 
 foreach ($campos as $k => $v) {
   if (in_array($k, $numericos, true)) {
     $types .= 'd';
-    $values[] = (float)($v ?? 0);
+    $values[] = (float)$v;
   } elseif (in_array($k, ['dea','reajuste','prorrogavel'], true)) {
     $types .= 'i';
-    $values[] = (int)($v ?? 0);
+    $values[] = is_null($v) ? null : (int)$v;
   } else {
     $types .= 's';
     $values[] = $v;
   }
 }
-
 
 $stmt->bind_param($types, ...$values);
 

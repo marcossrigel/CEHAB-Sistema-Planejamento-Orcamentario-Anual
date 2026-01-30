@@ -404,8 +404,6 @@ function nome_curto($nomeCompleto) {
           Sair
         </a>
 
-        
-
         <a href="suporte.php"
         class="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-300"
         title="Ajuda / Suporte">
