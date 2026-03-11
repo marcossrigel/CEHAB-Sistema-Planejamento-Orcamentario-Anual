@@ -106,30 +106,40 @@ if ($isBruno) {
   ";
 
   $sumSql = "
+  SELECT
+    COALESCE(SUM(janeiro),   0) AS jan,
+    COALESCE(SUM(fevereiro), 0) AS fev,
+    COALESCE(SUM(marco),     0) AS mar,
+    COALESCE(SUM(abril),     0) AS abr,
+    COALESCE(SUM(maio),      0) AS mai,
+    COALESCE(SUM(junho),     0) AS jun,
+    COALESCE(SUM(julho),     0) AS jul,
+    COALESCE(SUM(agosto),    0) AS ago,
+    COALESCE(SUM(setembro),  0) AS set_,
+    COALESCE(SUM(outubro),   0) AS out_,
+    COALESCE(SUM(novembro),  0) AS nov,
+    COALESCE(SUM(dezembro),  0) AS dez
+  FROM (
     SELECT
-      COALESCE(SUM(janeiro),   0) AS jan,
-      COALESCE(SUM(fevereiro), 0) AS fev,
-      COALESCE(SUM(marco),     0) AS mar,
-      COALESCE(SUM(abril),     0) AS abr,
-      COALESCE(SUM(maio),      0) AS mai,
-      COALESCE(SUM(junho),     0) AS jun,
-      COALESCE(SUM(julho),     0) AS jul,
-      COALESCE(SUM(agosto),    0) AS ago,
-      COALESCE(SUM(setembro),  0) AS set_,
-      COALESCE(SUM(outubro),   0) AS out_,
-      COALESCE(SUM(novembro),  0) AS nov,
-      COALESCE(SUM(dezembro),  0) AS dez
-    FROM (
-      SELECT janeiro,fevereiro,marco,abril,maio,junho,julho,agosto,setembro,outubro,novembro,dezembro
-      FROM contrato_modificado
+      usuario_cehab COLLATE utf8mb4_general_ci AS usuario_cehab,
+      numero_contrato COLLATE utf8mb4_general_ci AS numero_contrato,
+      credor COLLATE utf8mb4_general_ci AS credor,
+      objeto COLLATE utf8mb4_general_ci AS objeto,
+      janeiro, fevereiro, marco, abril, maio, junho, julho, agosto, setembro, outubro, novembro, dezembro
+    FROM contrato_modificado
 
-      UNION ALL
+    UNION ALL
 
-      SELECT janeiro,fevereiro,marco,abril,maio,junho,julho,agosto,setembro,outubro,novembro,dezembro
-      FROM novo_contrato
-    ) base
-    WHERE $where
-  ";
+    SELECT
+      usuario_cehab COLLATE utf8mb4_general_ci AS usuario_cehab,
+      numero_contrato COLLATE utf8mb4_general_ci AS numero_contrato,
+      credor COLLATE utf8mb4_general_ci AS credor,
+      objeto COLLATE utf8mb4_general_ci AS objeto,
+      janeiro, fevereiro, marco, abril, maio, junho, julho, agosto, setembro, outubro, novembro, dezembro
+    FROM novo_contrato
+  ) base
+  WHERE $where
+";
 
 } else {
 
@@ -355,7 +365,7 @@ function nome_curto($nomeCompleto) {
             <path d="M7 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9.828a2 2 0 0 0-.586-1.414l-4.828-4.828A2 2 0 0 0 12.172 3H7Zm5 2v4h4" />
             <path d="M9 13h6v2H9zm0 4h4v2H9z" />
           </svg>
-          Relatórios
+          Gerar Relatórios
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 opacity-90">
             <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.17l3.71-3.94a.75.75 0 1 1 1.08 1.04l-4.24 4.5a.75.75 0 0 1-1.08 0l-4.24-4.5a.75.75 0 0 1 .02-1.06Z" clip-rule="evenodd" />
           </svg>
@@ -367,7 +377,7 @@ function nome_curto($nomeCompleto) {
           <a href="relatorio_poa.php"
             class="flex items-center gap-2 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50">
             <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-            Gerar Relatório (Base Original)
+            Relatório (Base Original)
           </a>
 
           <?php if ($isBruno): ?>
@@ -375,15 +385,16 @@ function nome_curto($nomeCompleto) {
               class="flex items-center gap-2 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 border-t border-slate-100">
               <span class="w-2 h-2 rounded-full bg-amber-500"></span>
               Relatório (Base alterada)
-              <span class="ml-auto text-[11px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-semibold">Bruno</span>
             </a>
           <?php endif; ?>
-
-          <a href="relatorio_previsualizacao.php<?= $busca !== '' ? ('?q=' . urlencode($busca)) : '' ?>"
-            class="flex items-center gap-2 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 border-b border-slate-100">
-            <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-            Gerar Relatório (Pré-visualização)
-          </a>
+          
+          <?php if ($isBruno): ?>
+            <a href="relatorio_previsualizacao.php<?= $busca !== '' ? ('?q=' . urlencode($busca)) : '' ?>"
+              class="flex items-center gap-2 px-4 py-3 text-sm text-slate-700 hover:bg-slate-50 border-b border-slate-100">
+              <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+              Relatório (Base alterada + Base original)
+            </a>
+          <?php endif; ?>
 
         </div>
       </div>
